@@ -1,4 +1,4 @@
-## Getting Started
+## Getting Started!
 
 ### Create a virtual environment if you have yet to
 ```
