@@ -1,6 +1,6 @@
 ## Getting Started!
 
-### Create a virtual environment if you have yet to
+### Create a virtual environment if you have yet to.
 
 ```
 python3 -m venv venv
