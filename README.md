@@ -32,3 +32,11 @@ uvicorn main:app --reload
 ```
 pip freeze > requirements.txt
 ```
+
+### Add test cases
+
+Make sure that there is a `__init__.py` file at every level of the test cases 
+
+Run the following command at the root of the repository
+
+`pytest`
