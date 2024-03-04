@@ -21,4 +21,6 @@ def read_root():
 @app.post("/api/sendUrl")
 def sendUrl(data: SendUrlModel):
     url: str = data.url
+    print(url)
     return {"Successfully received URL": url}
+
