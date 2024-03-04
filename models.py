@@ -1,4 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class SendUrlModel(BaseModel):
-    url: str
+    # This forbids extra parameters from being added into this interface 
+    model_config = ConfigDict(extra='forbid') 
+
+    url: str 

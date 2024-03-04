@@ -45,5 +45,4 @@ pip freeze > requirements.txt
 Make sure that there is a `__init__.py` file at every level of the test cases
 
 Run the following command at the root of the repository
-
 `pytest`

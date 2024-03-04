@@ -1,9 +1,9 @@
 import pytest
 from models import SendUrlModel
-
+from pydantic import ValidationError
 
 SEND_URL_MODEL_VALID_DATA = [
-    ({"url": "https://example.com"}, "https://example.com"),
+    ("https://example.com", "https://example.com"),
 ]
 @pytest.mark.parametrize("input_url, expected", SEND_URL_MODEL_VALID_DATA)
 def test_send_url_model_valid(input_url, expected):
@@ -23,6 +23,6 @@ def test_send_url_model_invalid_type(invalid_input):
         SendUrlModel(url=invalid_input)
 
 def test_send_url_model_too_many_params():
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         SendUrlModel(url="https://example.com", extra_param="extra")
 
