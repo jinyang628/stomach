@@ -1,18 +1,34 @@
 ## Getting Started
 
+### Create a virtual environment if you have yet to
 ```
 python3 -m venv venv
+```
 
+### Activate virtual environment 
+#### MAC users
+```
+source venv/bin/activate
+```
+
+#### Windows users
+```
+venv\Scripts\activate
+```
+
+### Install the latest dependencies used by others
+```
 pip install -r requirements.txt
+```
 
-MAC: source venv/bin/activate
-Windows: venv\Scripts\activate
-
+### Start the server
+```
 uvicorn main:app --reload
 ```
 
 ## Before pushing 
 
+### Update requirements.txt with the latest dependencies you installed
 ```
 pip freeze > requirements.txt
 ```
