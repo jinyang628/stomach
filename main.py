@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from models import SendUrlModel
+from scripts.extractUrlContent import extractUrlContent
 
 app = FastAPI()
 
@@ -21,6 +22,6 @@ def read_root():
 @app.post("/api/sendUrl")
 def sendUrl(data: SendUrlModel):
     url: str = data.url
-    print(url)
-    return {"Successfully received URL": url}
+    extractUrlContent(url)
+    return {"Successfully extracted URL": url}
 
