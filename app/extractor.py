@@ -4,11 +4,13 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup
 
-from app.conversation import Conversation
+# from app.conversation import Conversation
+from app.message import AssistantMessage, Message, UserMessage
+from app.sharegpt import ShareGpt
 
 class Extractor(BaseModel):
     
-    def extract_single_url_content(url: str) -> Conversation:
+    def extract_single_url_content(url: str):
         response = requests.get(url)
         response.raise_for_status()
     
@@ -47,6 +49,8 @@ class Extractor(BaseModel):
         if not linear_conversation:
             raise ValueError('No linear_conversation found in data')
             
+        conversation: Conversation = None
+        curr_message: Message = None
         for container in linear_conversation:
             
             message: dict[str, any] = container.get('message')
@@ -76,8 +80,24 @@ class Extractor(BaseModel):
             if role == 'system':
                 # For now, system messages are not relevant for ShareGPT conversations
                 continue 
-            
-            print(role)
-            print(individual_response)
         
-        return title
+            try:
+                role_enum: ShareGpt = ShareGpt(role)
+            except ValueError:
+                raise ValueError('Invalid role found in author')
+        
+            message: Message = None
+            if role_enum == ShareGpt.USER:
+                message = UserMessage(content=individual_response)
+            elif role_enum == ShareGpt.ASSISTANT:
+                message = AssistantMessage(content=individual_response)
+            
+            if curr_message:
+                curr_message.next_message = message
+                message.prev_message = curr_message
+            # else:
+                # Keep track of the first message in the Conversation class 
+                # conversation = Conversation(title=title, curr_message=message)
+            # curr_message = message
+        
+        # return conversation
