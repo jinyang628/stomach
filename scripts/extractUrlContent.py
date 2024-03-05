@@ -1,15 +1,20 @@
-import requests
-from bs4 import BeautifulSoup
+from app.extractor import Extractor
 
-def extractUrlContent(url: str) -> str:
-    response = requests.get(url)
-    response.raise_for_status()
+# This function has to be modified when the structure of the shareGPT links changes
+# For now, we only take in a single url. In the future, we will possibly take in a list of urls. Hence, we should abstract the logic out to the Extractor class so as to call this script only once.   
+def extractUrlContent(url: str):
+    """Extracts the title and conversation messages from the ShareGPT url provided.
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    Args:
+        url (str): The ShareGPT url to extract content from.
+
+    Raises:
+        ValueError: If the expected tags are not found in the HMTL content
+
+    Returns:
+        str: _description_
+    """    
+    extractor: Extractor = Extractor()
+    # Will be a for loop in the future 
+    extractor.extract_single_url_content(url)
     
-    # Extract the text content from the HTML
-    text_content = soup.get_text(separator=' ', strip=True)
-    
-    print(text_content)
-    
-    return text_content
