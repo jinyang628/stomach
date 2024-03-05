@@ -4,13 +4,13 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup
 
-# from app.conversation import Conversation
+from app.conversation import Conversation
 from app.message import AssistantMessage, Message, UserMessage
 from app.sharegpt import ShareGpt
 
 class Extractor(BaseModel):
     
-    def extract_single_url_content(url: str):
+    def extract_single_url_content(url: str) -> Conversation:
         response = requests.get(url)
         response.raise_for_status()
     
@@ -95,9 +95,9 @@ class Extractor(BaseModel):
             if curr_message:
                 curr_message.next_message = message
                 message.prev_message = curr_message
-            # else:
+            else:
                 # Keep track of the first message in the Conversation class 
-                # conversation = Conversation(title=title, curr_message=message)
-            # curr_message = message
+                conversation = Conversation(title=title, curr_message=message)
+            curr_message = message
         
-        # return conversation
+        return conversation
