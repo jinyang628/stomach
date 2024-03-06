@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from app.conversation import Conversation
-from app.message import AssistantMessage, Message, UserMessage
+from app.message import Message, UserMessage, AssistantMessage
 from app.sharegpt import ShareGpt
 
 class Extractor(BaseModel):
@@ -69,7 +69,6 @@ class Extractor(BaseModel):
                 raise ValueError('Empty parts found in content')
             
             individual_response: str = parts[0]
-            print(individual_response)
 
             author: dict[str, any] = message.get('author')
             if not author: 
@@ -100,5 +99,5 @@ class Extractor(BaseModel):
                 # Keep track of the first message in the Conversation class 
                 conversation = Conversation(title=title, curr_message=message)
             curr_message = message
-        
+    
         return conversation
