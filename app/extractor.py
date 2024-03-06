@@ -10,7 +10,7 @@ from app.sharegpt import ShareGpt
 
 class Extractor(BaseModel):
     
-    def extract_single_url_content(url: str) -> Conversation:
+    def extract_single_url_content(self, url: str) -> Conversation:
         response = requests.get(url)
         response.raise_for_status()
     
@@ -69,6 +69,7 @@ class Extractor(BaseModel):
                 raise ValueError('Empty parts found in content')
             
             individual_response: str = parts[0]
+            print(individual_response)
 
             author: dict[str, any] = message.get('author')
             if not author: 
@@ -88,9 +89,9 @@ class Extractor(BaseModel):
         
             message: Message = None
             if role_enum == ShareGpt.USER:
-                message = UserMessage(content=individual_response)
+                message = UserMessage(content=individual_response, prev_message=curr_message, next_message=None)
             elif role_enum == ShareGpt.ASSISTANT:
-                message = AssistantMessage(content=individual_response)
+                message = AssistantMessage(content=individual_response, prev_message=curr_message, next_message=None)
             
             if curr_message:
                 curr_message.next_message = message
