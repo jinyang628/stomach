@@ -1,5 +1,7 @@
 ## Getting Started!
 
+### Setup db
+
 ### Create a virtual environment if you have yet to.
 
 ```
