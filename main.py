@@ -15,13 +15,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 @app.post("/api/sendUrl")
 def sendUrl(data: SendUrlModel):
     url: str = data.url
     extractUrlContent(url)
     return {"Successfully extracted URL": url}
-
