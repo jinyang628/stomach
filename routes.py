@@ -25,6 +25,6 @@ async def list_entries(request: Request) -> List[Entry]:
 @router.get("/{entry_id}", response_description="Get a single entry by id", response_model=Entry, status_code=status.HTTP_200_OK)
 async def find_entry(entry_id: str, request: Request) -> Entry:
     entry: dict = request.app.database["Entries"].find_one({"_id": ObjectId(entry_id)})
-    if entry is not None:
-        return entry
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with ID {entry_id} not found")
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with ID {entry_id} not found")
+    return entry
