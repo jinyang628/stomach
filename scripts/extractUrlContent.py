@@ -1,3 +1,5 @@
+import json
+from app.conversation import Conversation
 from app.extractor import Extractor
 
 
@@ -17,4 +19,12 @@ def extractUrlContent(url: str):
     """
     extractor: Extractor = Extractor()
     # Will be a for loop in the future
-    extractor.extract_single_url_content(url)
+    conversation: Conversation = extractor.extract_single_url_content(url)
+    jsonified_conversation: dict[str, str] = conversation.jsonify()
+    
+    # Uncomment this to see the prettified conversation
+    # pretty_json: str = json.dumps(jsonified_conversation, indent=4)  
+    # print(pretty_json)
+    
+    return jsonified_conversation
+

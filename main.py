@@ -24,5 +24,6 @@ def read_root():
 @app.post("/api/sendUrl")
 def sendUrl(data: SendUrlModel):
     url: str = data.url
-    extractUrlContent(url)
+    jsonified_conversation: dict[str, str] = extractUrlContent(url)
+    print(jsonified_conversation)
     return {"Successfully extracted URL": url}
