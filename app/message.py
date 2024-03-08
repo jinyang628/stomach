@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
@@ -22,11 +22,18 @@ class Message(ABC):
             raise TypeError("Content must be a string")
         self._content = value
 
+    def __str__(self):
+        return self._content
+
 
 @dataclass
 class UserMessage(Message):
+
+    _id: int
     _prev_message: Optional["AssistantMessage"]
     _next_message: Optional["AssistantMessage"]
+
+    instance_count: int = 0
 
     def __init__(
         self,
@@ -41,6 +48,8 @@ class UserMessage(Message):
         if not isinstance(next_message, (AssistantMessage, type(None))):
             raise TypeError("Next message must be an AssistantMessage or None")
         self._next_message = next_message
+        UserMessage.instance_count += 1
+        self._id = UserMessage.instance_count
 
     @property
     def prev_message(self) -> Optional["AssistantMessage"]:
@@ -62,11 +71,19 @@ class UserMessage(Message):
             raise TypeError("Next message must be an AssistantMessage or None")
         self._next_message = value
 
+    @property
+    def id(self) -> int:
+        return self._id
+
 
 @dataclass
 class AssistantMessage(Message):
+
+    _id: int
     _prev_message: Optional["UserMessage"]
     _next_message: Optional["UserMessage"]
+
+    instance_count: int = 0
 
     def __init__(
         self,
@@ -81,6 +98,8 @@ class AssistantMessage(Message):
         if not isinstance(next_message, (UserMessage, type(None))):
             raise TypeError("Next message must be a UserMessage or None")
         self._next_message = next_message
+        AssistantMessage.instance_count += 1
+        self._id = AssistantMessage.instance_count
 
     @property
     def prev_message(self) -> Optional["UserMessage"]:
@@ -101,3 +120,7 @@ class AssistantMessage(Message):
         if not isinstance(value, (UserMessage, type(None))):
             raise TypeError("Next message must be a UserMessage or None")
         self._next_message = value
+
+    @property
+    def id(self) -> int:
+        return self._id
