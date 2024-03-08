@@ -30,4 +30,3 @@ def sendUrl(data: SendUrlModel):
         return {"Successfully extracted URL": url}, 200
     except Exception as e:
         return {"Error": str(e)}, 500
-    
