@@ -23,7 +23,11 @@ def read_root():
 
 @app.post("/api/sendUrl")
 def sendUrl(data: SendUrlModel):
-    url: str = data.url
-    jsonified_conversation: dict[str, str] = extractUrlContent(url)
-    print(jsonified_conversation)
-    return {"Successfully extracted URL": url}
+    try:
+        url: str = data.url
+        jsonified_conversation: dict[str, str] = extractUrlContent(url)
+        print(jsonified_conversation)
+        return {"Successfully extracted URL": url}, 200
+    except Exception as e:
+        return {"Error": str(e)}, 500
+    
