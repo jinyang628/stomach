@@ -21,10 +21,9 @@ def extractUrlContent(url: str):
     # Will be a for loop in the future
     conversation: Conversation = extractor.extract_single_url_content(url)
     jsonified_conversation: dict[str, str] = conversation.jsonify()
-    
-    # Uncomment this to see the prettified conversation
-    # pretty_json: str = json.dumps(jsonified_conversation, indent=4)  
-    # print(pretty_json)
-    
-    return jsonified_conversation
 
+    # Uncomment this to see the prettified conversation
+    # pretty_json: str = json.dumps(jsonified_conversation, indent=4)
+    # print(pretty_json)
+
+    return jsonified_conversation

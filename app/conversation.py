@@ -26,8 +26,8 @@ class Conversation:
         if not isinstance(value, Message):
             raise TypeError("Current message must be a Message instance")
         self._curr_message = value
-        
-    # We are using static variables to instantiate the counters in each Message class so this function is very difficult to test. Do NOT make unnecessary modifications. 
+
+    # We are using static variables to instantiate the counters in each Message class so this function is very difficult to test. Do NOT make unnecessary modifications.
     def jsonify(self) -> dict[str, str]:
         result: dict[str, str] = {"title": self._title}
 
@@ -38,13 +38,17 @@ class Conversation:
         # Traverse backwards
         while current:
             messages.insert(0, current)
-            current = current.prev_message if hasattr(current, 'prev_message') else None
+            current = current.prev_message if hasattr(current, "prev_message") else None
 
         # Reset to current message and traverse forwards
-        current = self._curr_message.next_message if hasattr(self._curr_message, 'next_message') else None
+        current = (
+            self._curr_message.next_message
+            if hasattr(self._curr_message, "next_message")
+            else None
+        )
         while current:
             messages.append(current)
-            current = current.next_message if hasattr(current, 'next_message') else None
+            current = current.next_message if hasattr(current, "next_message") else None
 
         # Add messages to result
         for message in messages:
@@ -52,4 +56,3 @@ class Conversation:
             result[key] = str(message)
 
         return result
-    
