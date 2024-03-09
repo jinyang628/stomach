@@ -1,7 +1,10 @@
+import json
+from app.conversation import Conversation
 from app.extractor import Extractor
 
+
 # This function has to be modified when the structure of the shareGPT links changes
-# For now, we only take in a single url. In the future, we will possibly take in a list of urls. Hence, we should abstract the logic out to the Extractor class so as to call this script only once.   
+# For now, we only take in a single url. In the future, we will possibly take in a list of urls. Hence, we should abstract the logic out to the Extractor class so as to call this script only once.
 def extractUrlContent(url: str):
     """Extracts the title and conversation messages from the ShareGPT url provided.
 
@@ -13,8 +16,14 @@ def extractUrlContent(url: str):
 
     Returns:
         str: _description_
-    """    
+    """
     extractor: Extractor = Extractor()
-    # Will be a for loop in the future 
-    extractor.extract_single_url_content(url)
-    
+    # Will be a for loop in the future
+    conversation: Conversation = extractor.extract_single_url_content(url)
+    jsonified_conversation: dict[str, str] = conversation.jsonify()
+
+    # Uncomment this to see the prettified conversation
+    # pretty_json: str = json.dumps(jsonified_conversation, indent=4)
+    # print(pretty_json)
+
+    return jsonified_conversation

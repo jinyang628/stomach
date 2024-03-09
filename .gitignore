@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+main.cpython-312.pyc
+models.cpython-312.pyc
 
 # C extensions
 *.so
