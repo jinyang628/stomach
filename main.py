@@ -21,7 +21,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/api/createEntry")
+@app.post("/api/create_entry")
 def sendUrl(data: CreateEntryModel):
     try:
         url: str = data.url
