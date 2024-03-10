@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import SendUrlModel
+from models import CreateEntryModel
 from scripts.extractUrlContent import extractUrlContent
 
 app = FastAPI()
@@ -21,8 +21,8 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/api/sendUrl")
-def sendUrl(data: SendUrlModel):
+@app.post("/api/createEntry")
+def sendUrl(data: CreateEntryModel):
     try:
         url: str = data.url
         jsonified_conversation: dict[str, str] = extractUrlContent(url)
