@@ -15,6 +15,7 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
+
 class EntryService:
 
     async def create(self, request: Request, data: UrlModel) -> dict:
@@ -40,14 +41,20 @@ class EntryService:
         entries: List[dict] = []
         limit = 100  # Number of documents to fetch per query
         skip = 0  # Offset, start with 0
-        
+
         # Assume collection.find() returns a cursor that can be asynchronously iterated
         # Use a loop to fetch and append documents until all documents are fetched
         while True:
-            batch = await request.app.database["Entries"].find().skip(skip).limit(limit).to_list(length=limit)
+            batch = (
+                await request.app.database["Entries"]
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .to_list(length=limit)
+            )
             if not batch:
                 break  # Exit the loop if no more documents are returned
             entries.extend(batch)
             skip += limit  # Increase the offset for the next batch
-        
+
         return entries  # Return the list of entries

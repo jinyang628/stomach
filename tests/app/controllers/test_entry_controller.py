@@ -43,10 +43,12 @@ async def test_create_entry():
             response = await ac.post("/", json=test_url_data.dict())
 
         assert response.status_code == status.HTTP_200_OK
-        
+
         # response.json() here should already give you a dictionary
         response_data = response.json()
 
         # Assertions on the response_data as a dictionary
         assert response_data["user_id"] == test_entry_data["user_id"]
-        assert response_data["messages"]["title"] == test_entry_data["messages"]["title"]
+        assert (
+            response_data["messages"]["title"] == test_entry_data["messages"]["title"]
+        )
