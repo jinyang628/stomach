@@ -1,11 +1,12 @@
 import uuid
 from typing import List
 import json
-from fastapi import Request, HTTPException, status
+from fastapi import Request
 from bson import ObjectId
 from scripts.extractUrlContent import extractUrlContent
 from app.models.entry import Entry
 from app.models.url import UrlModel
+import ast
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -14,10 +15,9 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
-
 class EntryService:
 
-    async def create(self, request: Request, data: UrlModel) -> Entry:
+    async def create(self, request: Request, data: UrlModel) -> dict:
         url = data.url
         jsonified_conversation: dict = extractUrlContent(url)
 
@@ -33,8 +33,21 @@ class EntryService:
         new_entry = db["Entries"].insert_one(entry_dict)
         created_entry = db["Entries"].find_one({"_id": new_entry.inserted_id})
         parsed = JSONEncoder().encode(created_entry)
-        return parsed
+        unparsed = ast.literal_eval(parsed)
+        return unparsed
 
     async def get_all(self, request: Request) -> List[Entry]:
-        entries: List[dict] = list(request.app.database["Entries"].find(limit=100))
-        return entries
+        entries: List[dict] = []
+        limit = 100  # Number of documents to fetch per query
+        skip = 0  # Offset, start with 0
+        
+        # Assume collection.find() returns a cursor that can be asynchronously iterated
+        # Use a loop to fetch and append documents until all documents are fetched
+        while True:
+            batch = await request.app.database["Entries"].find().skip(skip).limit(limit).to_list(length=limit)
+            if not batch:
+                break  # Exit the loop if no more documents are returned
+            entries.extend(batch)
+            skip += limit  # Increase the offset for the next batch
+        
+        return entries  # Return the list of entries

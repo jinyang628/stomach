@@ -21,12 +21,12 @@ class EntryController:
         service = self.service
 
         @router.get("/", response_model=List[Entry])
-        async def list_entries(request: Request):
+        async def list_entries(request: Request) -> List[Entry]:
             entries = await service.get_all(request)
             return entries
 
         @router.post("/")
-        async def create_entry(data: UrlModel, request: Request):
+        async def create_entry(data: UrlModel, request: Request) -> dict:
             try:
                 entry = await service.create(request, data)
                 return entry

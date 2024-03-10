@@ -8,7 +8,7 @@ class BaseEntry(BaseModel):
     messages: Dict[str, str]
 
     @root_validator(pre=True)
-    def check_messages_keys(cls, values):
+    def check_messages_keys(cls, values: Dict[str, any]) -> Dict[str, any]:
         messages = values.get("messages", {})
         keys = list(messages.keys())
 
