@@ -31,3 +31,13 @@ def shutdown_db_client():
     app.mongodb_client.close()
 
 app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")
+
+@app.get("/api/api_keys/validate/{api_key}")
+def validate(api_key: str):
+    try:
+        print(api_key)
+        return JSONResponse(
+            content={"Successfully validated": api_key}, status_code=200
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
