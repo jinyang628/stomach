@@ -28,14 +28,19 @@ def sendUrl(data: CreateEntryModel):
         url: str = data.url
         jsonified_conversation: dict[str, str] = extractUrlContent(url)
         print(jsonified_conversation)
-        return JSONResponse(content={"Successfully extracted URL": url}, status_code=200)
+        return JSONResponse(
+            content={"Successfully extracted URL": url}, status_code=200
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @app.get("/api/api_keys/validate/{api_key}")
 def validate(api_key: str):
     try:
         print(api_key)
-        return JSONResponse(content={"Successfully validated": api_key}, status_code=200)
+        return JSONResponse(
+            content={"Successfully validated": api_key}, status_code=200
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
