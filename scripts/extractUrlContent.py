@@ -1,6 +1,6 @@
 import json
-from app.conversation import Conversation
-from app.extractor import Extractor
+from app.models.conversation import Conversation
+from app.models.extractor import Extractor
 
 
 # This function has to be modified when the structure of the shareGPT links changes

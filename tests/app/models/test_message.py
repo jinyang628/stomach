@@ -1,5 +1,5 @@
 import pytest
-from app.message import UserMessage, AssistantMessage
+from app.models.message import UserMessage, AssistantMessage
 
 
 @pytest.fixture

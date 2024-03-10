@@ -1,5 +1,7 @@
 ## Getting Started!
 
+### Setup db
+
 ### Create a virtual environment if you have yet to.
 
 ```
@@ -29,7 +31,7 @@ pip install -r requirements.txt
 ### Start the server
 
 ```
-uvicorn main:app --reload --port 8080
+uvicorn app.main:app --reload --port 8080
 ```
 
 ## Before pushing
@@ -48,6 +50,6 @@ Run the following command at the root of the repository
 `pytest`
 
 ### Check style
+
 Run the following command at the root of the repository
 `black .`
-
