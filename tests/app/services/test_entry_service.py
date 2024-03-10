@@ -17,7 +17,7 @@ from app.models.entry import Entry
 
 #     # Mock URLModel data
 #     url_data = UrlModel(url="http://example.com")
-    
+
 #     # Mock extractUrlContent function to return a predefined dict
 #     service = EntryService()
 #     result = await service.create(request, url_data)
@@ -28,12 +28,18 @@ from app.models.entry import Entry
 #     entry_data = json.loads(result)
 #     assert entry_data["user_id"] == url_data.url  # or any other assertion relevant to your logic
 
+
 @pytest.mark.asyncio
 async def test_get_all():
     # Mock request and database
     request = MagicMock()
     db = MongoClient().db
-    db["Entries"].insert_many([{"_id": "mocked_id_1", "user_id": "dummy1"}, {"_id": "mocked_id_2", "user_id": "dummy2"}])
+    db["Entries"].insert_many(
+        [
+            {"_id": "mocked_id_1", "user_id": "dummy1"},
+            {"_id": "mocked_id_2", "user_id": "dummy2"},
+        ]
+    )
     request.app.database = db
 
     service = EntryService()

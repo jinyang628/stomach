@@ -18,6 +18,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 # Database initialization and cleanup logic
 @app.on_event("startup")
 def startup_db_client():
@@ -25,12 +26,15 @@ def startup_db_client():
     app.database = app.mongodb_client[config["DB_NAME"]]
     print("Connected to the MongoDB database using certifi CA bundle!")
 
+
 # Close MongoDB connection on application shutdown
 @app.on_event("shutdown")
 def shutdown_db_client():
     app.mongodb_client.close()
 
+
 app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")
+
 
 @app.get("/api/api_keys/validate/{api_key}")
 def validate(api_key: str):

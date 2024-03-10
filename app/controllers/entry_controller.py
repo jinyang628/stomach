@@ -9,6 +9,7 @@ from app.services.entry_service import EntryService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class EntryController:
     def __init__(self):
         self.router = APIRouter()
@@ -23,7 +24,7 @@ class EntryController:
         async def list_entries(request: Request):
             entries = await service.get_all(request)
             return entries
-        
+
         @router.post("/")
         async def create_entry(data: UrlModel, request: Request):
             try:
@@ -32,6 +33,7 @@ class EntryController:
             except Exception as e:
                 logger.error("Error: %s", str(e))
                 return {"Error": str(e)}, 500
+
 
 # Create an instance of ApiController
 entry_controller_router = EntryController().router

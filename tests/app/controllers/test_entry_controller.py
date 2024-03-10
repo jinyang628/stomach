@@ -16,17 +16,25 @@ test_entry = Entry(**test_entry_data)
 test_entry_list = [test_entry]
 test_url_data = UrlModel(url="http://example.com")
 
+
 @pytest.mark.asyncio
 async def test_list_entries():
-    with patch('app.services.entry_service.EntryService.get_all', new=AsyncMock(return_value=test_entry_list)):
+    with patch(
+        "app.services.entry_service.EntryService.get_all",
+        new=AsyncMock(return_value=test_entry_list),
+    ):
         async with AsyncClient(app=app, base_url="http://test") as ac:
             response = await ac.get("/")
         assert response.status_code == 200
         assert response.json() == [test_entry.dict()]
 
+
 @pytest.mark.asyncio
 async def test_create_entry():
-    with patch('app.services.entry_service.EntryService.create', new=AsyncMock(return_value=test_entry)):
+    with patch(
+        "app.services.entry_service.EntryService.create",
+        new=AsyncMock(return_value=test_entry),
+    ):
         async with AsyncClient(app=app, base_url="http://test") as ac:
             response = await ac.post("/", json=test_url_data.dict())
         assert response.status_code == 200

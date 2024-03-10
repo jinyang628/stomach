@@ -7,11 +7,13 @@ from scripts.extractUrlContent import extractUrlContent
 from app.models.entry import Entry
 from app.models.url import UrlModel
 
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
 
 class EntryService:
 
@@ -21,10 +23,7 @@ class EntryService:
 
         # Prepare the Entry data
         dummy_user_id: str = str(uuid.uuid4())
-        entry_data = {
-            "user_id": dummy_user_id,
-            "messages": jsonified_conversation
-        }
+        entry_data = {"user_id": dummy_user_id, "messages": jsonified_conversation}
         entry_model = Entry(**entry_data)
 
         # Since we're directly using Entry model, ensure it's serialized properly for MongoDB
