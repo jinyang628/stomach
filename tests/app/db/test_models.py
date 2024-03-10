@@ -1,33 +1,46 @@
-import uuid
-from app.db.models import Entry
+import pytest
+from app.models.entry import Entry
 
-def test_entry_model_instantiation():
-    """Test if the Entry model can be instantiated correctly."""
-    entry_data = {
+def test_entry_valid_data():
+    """Test the Entry model with valid data."""
+    valid_data = {
+        "user_id": "some_user_id",
         "messages": {
-            "human": "Why is the sky blue?",
-            "AI": "The sky is blue due to the scattering of sunlight by the earth's atmosphere."
+            "title": "User Request Summarized",
+            "UserMessage1": "hi",
+            "AssistantMessage1": "Hello! How can I assist you today?",
+            "UserMessage2": "test",
+            "AssistantMessage2": "Sure, feel free to ask any question or tell me what you'd like to do!"
         }
     }
-    entry = Entry(**entry_data)
+    entry = Entry(**valid_data)
+    assert entry.user_id == "some_user_id"
+    assert "title" in entry.messages
+    assert entry.messages["title"] == "User Request Summarized"
 
-    # Test if 'id' is generated and is a valid UUID
-    assert isinstance(entry.id, str)
-    assert uuid.UUID(entry.id)
-
-    # Test if 'messages' is correctly assigned
-    assert entry.messages == entry_data["messages"]
-
-def test_entry_model_example():
-    """Test if the Entry model example matches the expected format."""
-    example = Entry.Config.schema_extra['example']
-    expected_messages = {
-        "human": "Hello, World!",
-        "AI": "Goodbye, World!"
+def test_entry_missing_title():
+    """Test the Entry model with missing 'title' key."""
+    invalid_data_missing_title = {
+        "user_id": "some_user_id",
+        "messages": {
+            "UserMessage1": "hi",
+            "AssistantMessage1": "Hello! How can I assist you today?",
+        }
     }
+    with pytest.raises(ValueError) as e:
+        Entry(**invalid_data_missing_title)
+    assert "The first key must be 'title'." in str(e.value)
 
-    # Test if example '_id' is a valid UUID
-    assert uuid.UUID(example["_id"])
+def test_entry_invalid_key_pattern():
+    """Test the Entry model with invalid key pattern in messages."""
+    invalid_data_key_pattern = {
+        "user_id": "some_user_id",
+        "messages": {
+            "title": "Incorrect Pattern",
+            "InvalidKey": "This should fail",
+        }
+    }
+    with pytest.raises(ValueError) as e:
+        Entry(**invalid_data_key_pattern)
+    assert "does not match 'Assistant{INTEGER}' or 'User{INTEGER}' pattern" in str(e.value)
 
-    # Test if example 'messages' match the expected dictionary
-    assert example["messages"] == expected_messages

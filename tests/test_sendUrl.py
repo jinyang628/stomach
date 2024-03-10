@@ -1,5 +1,5 @@
 import pytest
-from models import SendUrlModel
+from app.models.sendUrl import SendUrlModel
 from pydantic import ValidationError
 
 SEND_URL_MODEL_VALID_DATA = [

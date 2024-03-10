@@ -1,6 +1,6 @@
 import pytest
-from app.message import UserMessage, AssistantMessage
-from app.conversation import Conversation
+from app.models.message import UserMessage, AssistantMessage
+from app.models.conversation import Conversation
 
 CONVERSATION_TEST_DATA = [
     ("Valid Title", UserMessage("Valid Message", None, None), None),

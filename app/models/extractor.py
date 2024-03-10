@@ -4,9 +4,9 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup
 
-from app.conversation import Conversation
-from app.message import Message, UserMessage, AssistantMessage
-from app.sharegpt import ShareGpt
+from app.models.conversation import Conversation
+from app.models.message import Message, UserMessage, AssistantMessage
+from app.models.sharegpt import ShareGpt
 
 
 class Extractor(BaseModel):
