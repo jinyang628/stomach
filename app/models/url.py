@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class CreateEntryModel(BaseModel):
+class UrlModel(BaseModel):
     # This forbids extra parameters from being added into this interface
     model_config = ConfigDict(extra="forbid")
 

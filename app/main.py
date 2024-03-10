@@ -1,17 +1,11 @@
-import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
 import certifi
-from app.models.sendUrl import SendUrlModel
-from scripts.extractUrlContent import extractUrlContent
-from app.services.entryService import EntryService
+from app.controllers.entry_controller import entry_controller_router
 
 config = dotenv_values(".env")
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -36,21 +30,4 @@ def startup_db_client():
 def shutdown_db_client():
     app.mongodb_client.close()
 
-# DB route setup    
-app.include_router(entry_router, tags=["entries"], prefix="/entry")
-
-# Application routes setup
-@app.get("/")
-def read_root():
-    return {"Hello": "StillHuman"}
-
-@app.post("/api/sendUrl")
-def sendUrl(data: SendUrlModel):
-    try:
-        url: str = data.url
-        jsonified_conversation: dict = extractUrlContent(url)
-        EntryService(jsonified_conversation)
-        
-    except Exception as e:
-        logger.error("Error: %s", str(e))
-        return {"Error": str(e)}, 500
+app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")

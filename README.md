@@ -50,6 +50,6 @@ Run the following command at the root of the repository
 `pytest`
 
 ### Check style
+
 Run the following command at the root of the repository
 `black .`
-

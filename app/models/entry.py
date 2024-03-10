@@ -1,9 +1,8 @@
-import uuid
 import re
 from typing import Dict
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, root_validator
 
-class EntryRequest(BaseModel):
+class BaseEntry(BaseModel):
     user_id: str
     messages: Dict[str, str]
 
@@ -39,13 +38,4 @@ class EntryRequest(BaseModel):
         }
 
 class Entry(BaseEntry):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-
-    class Config(BaseEntry.Config):
-        schema_extra = {
-            **BaseEntry.Config.schema_extra,
-            "example": {
-                **BaseEntry.Config.schema_extra["example"],
-                "_id": "066de609-b04a-4b30-b46c-32537c7f1f6e"
-            }
-        }
+    pass

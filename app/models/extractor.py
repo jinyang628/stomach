@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from app.models.conversation import Conversation
 from app.models.message import Message, UserMessage, AssistantMessage
-from app.models.sharegpt import ShareGpt
+from app.models.shareGpt import ShareGpt
 
 
 class Extractor(BaseModel):
