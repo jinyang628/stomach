@@ -1,6 +1,7 @@
 from typing import List
 import logging
-from fastapi import APIRouter, status, HTTPException, Depends, Request
+from fastapi import APIRouter, Request
+from app.api.infer import infer
 from app.services.entry_service import EntryService
 from app.models.entry import Entry
 from app.models.url import UrlModel
@@ -26,12 +27,17 @@ class EntryController:
             return entries
 
         @router.post("/")
-        async def create_entry(data: UrlModel, request: Request) -> dict:
+        async def create_entry(data: UrlModel, request: Request) -> dict[str, str]:
             try:
-                entry = await service.create(request, data)
-                return entry
+                entry: dict[str, str] = await service.create(request, data)
+                try:
+                    response_data = await infer(entry)
+                    return response_data
+                except Exception as e:
+                    logger.error("Error in inference: %s", str(e))
+                    return {"Error": str(e)}, 500
             except Exception as e:
-                logger.error("Error: %s", str(e))
+                logger.error("Error in creating entry: %s", str(e))
                 return {"Error": str(e)}, 500
 
 
