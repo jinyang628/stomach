@@ -18,7 +18,7 @@ class JSONEncoder(json.JSONEncoder):
 
 class EntryService:
 
-    async def create(self, request: Request, data: UrlModel) -> dict:
+    async def create(self, request: Request, data: UrlModel) -> dict[str, str]:
         url = data.url
         jsonified_conversation: dict = extractUrlContent(url)
 
