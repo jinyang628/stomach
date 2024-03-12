@@ -26,7 +26,7 @@ async def infer(entry: dict[str, str]):
     try:
         if not BRAIN_API_URL:
             raise ValueError("BRAIN_API_URL is not set in .env file.")
-        url: str = f"{BRAIN_API_URL}/infer"
+        url: str = f"{BRAIN_API_URL}/inference"
 
         # Make a POST request to the Brain repo
         async with httpx.AsyncClient() as client:

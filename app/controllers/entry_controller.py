@@ -1,7 +1,7 @@
 from typing import List
 import logging
 from fastapi import APIRouter, HTTPException, Request
-from app.api.infer import infer
+from app.api.inference import infer
 from app.services.entry_service import EntryService
 from app.models.entry import Entry
 from app.models.url import UrlModel
