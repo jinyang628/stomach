@@ -1,6 +1,6 @@
 from typing import List
 import logging
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from app.api.infer import infer
 from app.services.entry_service import EntryService
 from app.models.entry import Entry
@@ -31,14 +31,15 @@ class EntryController:
             try:
                 entry: dict[str, str] = await service.create(request, data)
                 try:
-                    response_data = await infer(entry)
-                    return response_data
+                    await infer(entry)
+                    # If inference succeeds, the following message will be returned. No content is returned at this juncture.
+                    return {"message": "Successfully completed inference"}
                 except Exception as e:
                     logger.error("Error in inference: %s", str(e))
-                    return {"Error": str(e)}, 500
+                    raise HTTPException(status_code=500, detail=str(e))
             except Exception as e:
                 logger.error("Error in creating entry: %s", str(e))
-                return {"Error": str(e)}, 500
+                raise HTTPException(status_code=500, detail=str(e))
 
 
 # Create an instance of ApiController
