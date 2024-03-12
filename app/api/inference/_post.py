@@ -14,7 +14,7 @@ class BrainResponse(BaseModel):
     code: str
 
 
-async def infer(entry: dict[str, str]):
+async def _post(entry: dict[str, str]):
     """This is a function that sends a POST request to the Brain for inference. It does not return anything. If the request fails, an HTTPException is raised.
 
     Args:

@@ -1,7 +1,7 @@
 from typing import List
 import logging
 from fastapi import APIRouter, HTTPException, Request
-from app.api.inference import infer
+from app.api.inference._post import _post
 from app.services.entry_service import EntryService
 from app.models.entry import Entry
 from app.models.url import UrlModel
@@ -31,7 +31,7 @@ class EntryController:
             try:
                 entry: dict[str, str] = await service.create(request, data)
                 try:
-                    await infer(entry)
+                    await _post(entry)
                     # If inference succeeds, the following message will be returned. No content is returned at this juncture.
                     return {"message": "Successfully completed inference"}
                 except Exception as e:
