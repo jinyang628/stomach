@@ -32,6 +32,8 @@ async def infer(entry: dict[str, str]):
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=entry)
             if response.status_code != 200:
-                raise HTTPException(status_code=500, detail="Failed to complete inference")
+                raise HTTPException(
+                    status_code=500, detail="Failed to complete inference"
+                )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
