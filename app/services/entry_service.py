@@ -21,7 +21,7 @@ class EntryService:
     async def create(self, request: Request, data: UrlModel) -> dict[str, str]:
         url = data.url
         jsonified_conversation: dict = extractUrlContent(url)
-
+        
         # Prepare the Entry data
         dummy_user_id: str = str(uuid.uuid4())
         entry_data = {"user_id": dummy_user_id, "messages": jsonified_conversation}

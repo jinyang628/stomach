@@ -44,6 +44,8 @@ async def test_create_entry():
     ):
         async with AsyncClient(app=app, base_url="http://test") as ac:
             # Assuming test_url_data is defined and valid
+            # TODO: Aaron, please look at main.py in brain repo. The input to the /api/infer endpoint must follow the InferInputModel shape. If not, an internal server error 500 will be thrown. Y
             response = await ac.post("/", json=test_url_data.model_dump())
+            print(response.json())
 
         assert response.status_code == status.HTTP_200_OK
