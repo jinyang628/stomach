@@ -1,9 +1,9 @@
+from abc import ABC
 import re
 from typing import Dict
 from pydantic import BaseModel, root_validator
 
-
-class BaseEntry(BaseModel):
+class BaseEntry(ABC, BaseModel):
     user_id: str
     messages: Dict[str, str]
 
@@ -41,5 +41,10 @@ class BaseEntry(BaseModel):
         }
 
 
-class Entry(BaseEntry):
+class EntryRequest(BaseEntry):
     pass
+
+class EntryResponse(BaseEntry):
+    #frontend -> stomach -> db -> stomach -> ML
+    id: #MONGODB import got it bson.ObjectId?
+

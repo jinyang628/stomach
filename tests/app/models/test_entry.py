@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from app.models.entry import BaseEntry
+from app.models.entry_controller import BaseEntry
 
 
 def test_base_entry_valid_data():

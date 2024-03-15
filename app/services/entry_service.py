@@ -1,11 +1,11 @@
 import uuid
-from typing import List
+from typing import Any, List
 import json
 from fastapi import Request
 from bson import ObjectId
 from scripts.extractUrlContent import extractUrlContent
-from app.models.entry import Entry
-from app.models.url import UrlModel
+from app.models.entry_controller.entry import Entry
+from app.models.entry_controller.createEntryInput import CreateEntryInput
 import ast
 
 
@@ -18,8 +18,9 @@ class JSONEncoder(json.JSONEncoder):
 
 class EntryService:
 
-    async def create(self, request: Request, data: UrlModel) -> dict[str, str]:
-        url = data.url
+    async def create(self, request: Request, data: CreateEntryInput) -> dict[str, Any]:
+        apiKey: str = data.apiKey
+        url: str = data.url
         jsonified_conversation: dict = extractUrlContent(url)
 
         # Prepare the Entry data
@@ -28,7 +29,7 @@ class EntryService:
         entry_model = Entry(**entry_data)
 
         # Since we're directly using Entry model, ensure it's serialized properly for MongoDB
-        entry_dict = entry_model.dict()
+        entry_dict = entry_model.model_dump()
         # Insert into the database (adjust this part if your db access is async)
         db = request.app.database
         new_entry = db["Entries"].insert_one(entry_dict)

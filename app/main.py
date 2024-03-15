@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from dotenv import dotenv_values
+from fastapi.responses import JSONResponse
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
 import certifi
@@ -39,7 +40,6 @@ app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entri
 @app.get("/api/api_keys/validate/{api_key}")
 def validate(api_key: str):
     try:
-        print(api_key)
         return JSONResponse(
             content={"Successfully validated": api_key}, status_code=200
         )
