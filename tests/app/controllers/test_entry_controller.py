@@ -2,8 +2,8 @@ import pytest
 from httpx import AsyncClient
 from fastapi import FastAPI, status
 from app.controllers.entry_controller import entry_controller_router
-from app.models.entry import Entry
-from app.models.url import UrlModel
+from app.models.entry_controller import Entry
+from app.models.entry_controller.createEntryInput import CreateEntryInput
 from unittest.mock import AsyncMock, patch
 import os
 from dotenv import load_dotenv
@@ -20,7 +20,7 @@ app.include_router(entry_controller_router)
 test_entry_data = {"user_id": "test_user", "messages": {"title": "Test Entry"}}
 test_entry = Entry(**test_entry_data)
 test_entry_list = [test_entry]
-test_url_data = UrlModel(url="http://example.com")
+test_url_data = CreateEntryInput(url="http://example.com")
 
 
 @pytest.mark.asyncio

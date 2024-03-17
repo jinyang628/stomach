@@ -3,8 +3,8 @@ import json
 import pytest
 from mongomock import MongoClient
 from app.services.entry_service import EntryService
-from app.models.url import UrlModel
-from app.models.entry import Entry
+from app.models.entry_controller.createEntryInput import CreateEntryInput
+from app.models.entry_controller import Entry
 
 # Blocked here its working but test is not, will revisit later
 
