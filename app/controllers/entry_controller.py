@@ -16,20 +16,19 @@ logger = logging.getLogger(__name__)
 
 class EntryController:
     def __init__(self):
-        self.router = APIRouter()
-        self.service = EntryService()
+        self._router = APIRouter()
+        self._service = EntryService()
         self.setup_routes()
 
     def setup_routes(self):
-        router = self.router
-        service = self.service
+        service = self._service
 
-        @router.get("/", response_model=List[Entry])
+        @self._router.get("/", response_model=List[Entry])
         async def list_entries(request: Request) -> List[Entry]:
             entries = await service.get_all(request)
             return entries
 
-        @router.post("/")
+        @self._router.post("/")
         async def create_entry(data: CreateEntryInput, request: Request) -> dict[str, Any]:
             
             try:
