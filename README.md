@@ -34,6 +34,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8080
 ```
 
+### Switch to turso
+```
+turso org switch jinyang628
+```
+
 ## Before pushing
 
 ### Update requirements.txt with the latest dependencies you installed
