@@ -10,20 +10,15 @@ class Entry(BaseModel):
     entry_id: str
     api_key: str
     url: str
-    
+
     def local(
         version: int,
         entry_id: str,
         api_key: str,
         url: str,
     ):
-        return Entry(
-            version=version,
-            entry_id=entry_id,
-            api_key=api_key,
-            url=url
-        )
-    
+        return Entry(version=version, entry_id=entry_id, api_key=api_key, url=url)
+
     def remote(
         **kwargs,
     ):

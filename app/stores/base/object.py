@@ -7,6 +7,7 @@ import libsql_client
 
 from app.connectors.turso import TursoConnector
 
+
 class ObjectStore:
     _table_name: str = None
     _db_client: TursoConnector = None
@@ -20,11 +21,11 @@ class ObjectStore:
             url=os.environ.get("TURSO_DB_URL"),
             auth_token=os.environ.get("TURSO_DB_AUTH_TOKEN"),
         )
-        
+
     ####
     #### TABLE OPERATIONS
     ####
-    
+
     def create_table(
         self,
         table_name: str,
@@ -55,6 +56,7 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error deleting table {table_name}: {e}")
             raise e
+
     ####
     #### CRUD
     ####
@@ -67,7 +69,10 @@ class ObjectStore:
         try:
             rs = self._db_client.execute(statement=statement)
             logging.debug(rs.rows)
-            _dicts = [{rs.columns[i]: row[i] for i in range(len(rs.columns))} for row in rs.rows]
+            _dicts = [
+                {rs.columns[i]: row[i] for i in range(len(rs.columns))}
+                for row in rs.rows
+            ]
             return _dicts
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")
@@ -91,7 +96,8 @@ class ObjectStore:
         objs: List[dict],
     ) -> List[str]:
         statements = [
-            self._dict_to_insert_statement(table_name=self._table_name, dict=obj) for obj in objs
+            self._dict_to_insert_statement(table_name=self._table_name, dict=obj)
+            for obj in objs
         ]
         try:
             rss = self._db_client.batch_execute(statements=statements)
@@ -108,7 +114,8 @@ class ObjectStore:
         objs: List[dict],
     ) -> bool:
         statements = [
-            self._dict_to_update_statement(table_name=self._table_name, dict=obj) for obj in objs
+            self._dict_to_update_statement(table_name=self._table_name, dict=obj)
+            for obj in objs
         ]
         try:
             rss = self._db_client.batch_execute(statements=statements)
@@ -127,7 +134,10 @@ class ObjectStore:
         try:
             rs = self._db_client.execute(statement=statement)
             logging.debug(rs.rows)
-            _dicts = [{rs.columns[i]: row[i] for i in range(len(rs.columns))} for row in rs.rows]
+            _dicts = [
+                {rs.columns[i]: row[i] for i in range(len(rs.columns))}
+                for row in rs.rows
+            ]
             return _dicts
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")

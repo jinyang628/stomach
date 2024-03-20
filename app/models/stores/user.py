@@ -9,7 +9,7 @@ class User(BaseModel):
     version: int
     email: str
     api_key: str
-    
+
     def local(
         version: int,
         email: str,
@@ -20,7 +20,7 @@ class User(BaseModel):
             email=email,
             api_key=api_key,
         )
-    
+
     def remote(
         **kwargs,
     ):
@@ -31,4 +31,3 @@ class User(BaseModel):
             api_key=sql_value_to_typed_value(dict=kwargs, key="api_key", type=str),
         )
         return entry
-
