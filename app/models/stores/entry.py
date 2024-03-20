@@ -34,5 +34,4 @@ class Entry(BaseModel):
             api_key=sql_value_to_typed_value(dict=kwargs, key="api_key", type=str),
             url=sql_value_to_typed_value(dict=kwargs, key="url", type=str),
         )
-        print(entry)
         return entry

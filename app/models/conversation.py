@@ -1,4 +1,4 @@
-from app.models.message import AssistantMessage, Message, UserMessage
+from app.models.message import Message
 
 
 class Conversation:

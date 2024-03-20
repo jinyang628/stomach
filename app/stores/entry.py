@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import List
-from app.models.entry import Entry
+from app.models.stores.entry import Entry
 from app.stores.base.object import ObjectStore
 
 log = logging.getLogger(__name__)
@@ -27,4 +27,16 @@ class EntryObjectStore:
     ) -> List[Entry]:
         _dicts = self._store.get(ids=ids)
         return [Entry.remote(**_dict) for _dict in _dicts]
+    
+    def update(
+        self,
+        entries: List[Entry]
+    ) -> bool:
+        return self._store.update(objs=[entry.model_dump() for entry in entries])
+    
+    def delete(
+        self,
+        ids: List[int]
+    ) -> bool:
+        return self._store.delete(ids=ids)
       
