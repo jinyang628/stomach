@@ -7,7 +7,6 @@ import json
 def test_insert_get_update_delete():
     store = InferenceObjectStore()
     object_1 = Inference.local(
-        version=1,
         entry_id="test_entry_id_1",
         conversation=json.dumps(
             {
@@ -20,7 +19,6 @@ def test_insert_get_update_delete():
         exercise=None,
     )
     object_2 = Inference.local(
-        version=1,
         entry_id="test_entry_id_2",
         conversation=json.dumps(
             {

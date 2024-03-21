@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from dotenv import dotenv_values
 from fastapi.responses import JSONResponse
-from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
-import certifi
-from app.controllers.entry_controller import entry_controller_router
+from pydantic import BaseModel
+
+from app.models.logic.conversation import Conversation
+from app.models.types import _PostEntriesInput, ValidateInput
+from scripts.entry import insert_entry
+from scripts.extractUrlContent import extractUrlContent
+
 
 config = dotenv_values(".env")
 
@@ -18,30 +22,18 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
-
-# Database initialization and cleanup logic
-@app.on_event("startup")
-def startup_db_client():
-    app.mongodb_client = MongoClient(config["ATLAS_URI"], tlsCAFile=certifi.where())
-    app.database = app.mongodb_client[config["DB_NAME"]]
-    print("Connected to the MongoDB database using certifi CA bundle!")
-
-
-# Close MongoDB connection on application shutdown
-@app.on_event("shutdown")
-def shutdown_db_client():
-    app.mongodb_client.close()
-
-
-app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")
-
-
+    
+@app.post("/api/entries")
+def _post_entries(input: _PostEntriesInput):
+    conversation: Conversation = extractUrlContent(input.url)  
+    
+    
 @app.get("/api/api_keys/validate/{api_key}")
-def validate(api_key: str):
+def validate(input: ValidateInput):
     try:
+        # TODO: Validate the API key
         return JSONResponse(
-            content={"Successfully validated": api_key}, status_code=200
+            content={"Successfully validated": input.api_key}, status_code=200
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

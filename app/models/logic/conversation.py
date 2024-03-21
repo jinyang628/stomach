@@ -1,4 +1,4 @@
-from app.models.message import Message
+from app.models.logic.message import Message
 
 
 class Conversation:

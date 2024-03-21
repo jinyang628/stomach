@@ -33,8 +33,6 @@ class UserMessage(Message):
     _prev_message: Optional["AssistantMessage"]
     _next_message: Optional["AssistantMessage"]
 
-    instance_count: int = 0
-
     def __init__(
         self,
         content: str,
@@ -48,8 +46,7 @@ class UserMessage(Message):
         if not isinstance(next_message, (AssistantMessage, type(None))):
             raise TypeError("Next message must be an AssistantMessage or None")
         self._next_message = next_message
-        UserMessage.instance_count += 1
-        self._id = UserMessage.instance_count
+        self._id = 1 if prev_message is None else (prev_message.id + 1)
 
     @property
     def prev_message(self) -> Optional["AssistantMessage"]:
@@ -83,8 +80,6 @@ class AssistantMessage(Message):
     _prev_message: Optional["UserMessage"]
     _next_message: Optional["UserMessage"]
 
-    instance_count: int = 0
-
     def __init__(
         self,
         content: str,
@@ -92,14 +87,13 @@ class AssistantMessage(Message):
         next_message: Optional["UserMessage"],
     ):
         super().__init__(content)
-        if not isinstance(prev_message, (UserMessage, type(None))):
-            raise TypeError("Previous message must be a UserMessage or None")
+        if not isinstance(prev_message, UserMessage):
+            raise TypeError("Previous message must be a UserMessage")
         self._prev_message = prev_message
         if not isinstance(next_message, (UserMessage, type(None))):
             raise TypeError("Next message must be a UserMessage or None")
         self._next_message = next_message
-        AssistantMessage.instance_count += 1
-        self._id = AssistantMessage.instance_count
+        self._id = prev_message.id
 
     @property
     def prev_message(self) -> Optional["UserMessage"]:

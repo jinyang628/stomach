@@ -6,11 +6,10 @@ from app.stores.entry import EntryObjectStore
 def test_insert_get_update_delete():
     store = EntryObjectStore()
     object_1 = Entry.local(
-        version=1, entry_id="test_entry_id", api_key="test_api_key", url="test_url"
+        api_key="test_api_key", 
+        url="test_url"
     )
     object_2 = Entry.local(
-        version=1,
-        entry_id="test_entry_id_2",
         api_key="test_api_key_2",
         url="test_url_2",
     )

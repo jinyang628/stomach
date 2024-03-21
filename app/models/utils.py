@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import List
 
 
@@ -28,3 +28,9 @@ def sql_value_to_typed_value(
         return [int(v) for v in value.split(",")]
     else:
         raise Exception(f"Unknown type: {type(value)}")
+    
+def generate_identifier(value: str) -> str:
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d%H%M%S")
+    unique_identifier = f"{value}_{timestamp}"
+    return unique_identifier

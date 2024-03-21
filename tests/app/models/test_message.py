@@ -1,6 +1,6 @@
 import copy
 import pytest
-from app.models.message import AssistantMessage, UserMessage
+from app.models.logic.message import AssistantMessage, UserMessage
 
 ###
 ### USER MESSAGE TESTS
@@ -13,13 +13,13 @@ VALID_USER_MESSAGE_INITIALISATION_DATA = [
     ),
     (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
-        AssistantMessage(content="prev", prev_message=None, next_message=None),
-        AssistantMessage(content="next", prev_message=None, next_message=None),
+        AssistantMessage(content="prev", prev_message=UserMessage(content="dummy1", prev_message=None, next_message=None), next_message=None),
+        AssistantMessage(content="next", prev_message=UserMessage(content="dummy2", prev_message=None, next_message=None), next_message=None),
     ),
     (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
         None,
-        AssistantMessage(content="next", prev_message=None, next_message=None),
+        AssistantMessage(content="next", prev_message=UserMessage(content="dummy", prev_message=None, next_message=None), next_message=None),
     ),
 ]
 
@@ -111,19 +111,14 @@ def test_invalid_user_prev_next_message_set(prev_message, next_message):
 ###
 VALID_ASSISTANT_MESSAGE_INITIALISATION_DATA = [
     (
-        "I love test cases!",
-        None,
-        None,
-    ),
-    (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
         UserMessage(content="prev", prev_message=None, next_message=None),
         UserMessage(content="next", prev_message=None, next_message=None),
     ),
     (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
-        None,
         UserMessage(content="next", prev_message=None, next_message=None),
+        None
     ),
 ]
 
@@ -148,13 +143,13 @@ INVALID_ASSISTANT_MESSAGE_INITIALISATION_DATA = [
     ),
     (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
-        AssistantMessage(content="prev", prev_message=None, next_message=None),
-        AssistantMessage(content="next", prev_message=None, next_message=None),
+        AssistantMessage(content="prev", prev_message=UserMessage(content="dummy1", prev_message=None, next_message=None), next_message=None),
+        AssistantMessage(content="next", prev_message=UserMessage(content="dummy2", prev_message=None, next_message=None), next_message=None),
     ),
     (
         "tests/app/stores/test_entry.py.tests/app/stores/test_inference.66%",
         None,
-        AssistantMessage(content="next", prev_message=None, next_message=None),
+        AssistantMessage(content="next", prev_message=UserMessage(content="dummy", prev_message=None, next_message=None), next_message=None),
     ),
 ]
 
@@ -189,8 +184,8 @@ def test_valid_prev_next_assistant_message_reference_and_set(
 
 INVALID_ASSISTANT_MESSAGE_SET_DATA = [
     (
-        AssistantMessage(content="prev", prev_message=None, next_message=None),
-        AssistantMessage(content="next", prev_message=None, next_message=None),
+        AssistantMessage(content="prev", prev_message=UserMessage(content="dummy1", prev_message=None, next_message=None), next_message=None),
+        AssistantMessage(content="next", prev_message=UserMessage(content="dummy2", prev_message=None, next_message=None), next_message=None),
     ),
     (
         123,
@@ -204,7 +199,7 @@ INVALID_ASSISTANT_MESSAGE_SET_DATA = [
 )
 def test_invalid_prev_next_assistant_message_set(prev_message, next_message):
     assistant_message = AssistantMessage(
-        content="I love test cases!", prev_message=None, next_message=None
+        content="I love test cases!", prev_message=UserMessage(content="dummy", prev_message=None, next_message=None), next_message=None
     )
     with pytest.raises(TypeError):
         assistant_message.prev_message = prev_message

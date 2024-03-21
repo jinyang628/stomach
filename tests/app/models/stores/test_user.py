@@ -6,12 +6,10 @@ from app.stores.user import UserObjectStore
 def test_insert_get_update_delete():
     store = UserObjectStore()
     object_1 = User.local(
-        version=1,
         email="jinyang0220@gmail.com",
         api_key="test_api_key_1",
     )
     object_2 = User.local(
-        version=1,
         email="jinyang0220@gmail.com",
         api_key="test_api_key_2",
     )
