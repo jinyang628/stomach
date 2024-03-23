@@ -26,12 +26,12 @@ def extractUrlContent(url: str) -> Conversation:
     conversation: Conversation = _extract_single_url_content(url)
 
     # Uncomment this to see the prettified conversation
-    # pretty_json: str = json.dumps(jsonified_conversation, indent=4)
+    # pretty_json: str = json.dumps(conversation.jsonify(), indent=4)
     # print(pretty_json)
 
     return conversation
 
-def _extract_single_url_content(self, url: str) -> Conversation:
+def _extract_single_url_content(url: str) -> Conversation:
     response = requests.get(url)
     response.raise_for_status()
 

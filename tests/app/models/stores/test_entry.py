@@ -1,7 +1,11 @@
 from typing import List
 from app.models.stores.entry import Entry
 from app.stores.entry import EntryObjectStore
+import pytest
 
+@pytest.fixture
+def store():
+    return EntryObjectStore()
 
 def test_insert_get_update_delete():
     store = EntryObjectStore()
@@ -13,7 +17,7 @@ def test_insert_get_update_delete():
         api_key="test_api_key_2",
         url="test_url_2",
     )
-    inserted_ids: List[int] = store.insert(entries=[object_1, object_2])
+    inserted_ids: List[int] = store.insert(entries=[object_1, object_2], return_column="id")
     assert len(inserted_ids) == 2
 
     objs = store.get(ids=inserted_ids)
@@ -42,3 +46,7 @@ def test_insert_get_update_delete():
 
     success = store.delete(ids=inserted_ids)
     assert success
+
+    
+    
+        

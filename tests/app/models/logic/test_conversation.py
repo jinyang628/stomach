@@ -10,7 +10,7 @@ VALID_CONVERSATION_INITIALISATION_DATA = [
 ]
 
 @pytest.mark.parametrize("title, message", VALID_CONVERSATION_INITIALISATION_DATA)
-def test_jsonify_message(title, message, expected_output):
+def test_jsonify_message(title, message):
     conversation = Conversation(title=title, curr_message=message)
     assert conversation.curr_message == message    
 

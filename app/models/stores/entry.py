@@ -18,11 +18,12 @@ class Entry(BaseModel):
         cls,
         api_key: str,
         url: str,
+        entry_id: Optional[str] = None,
     ):
         
         return cls(
             version=ENTRY_VERSION, 
-            entry_id=generate_identifier(cls.__name__.lower()), 
+            entry_id=entry_id if entry_id else generate_identifier(cls.__name__.lower()), 
             api_key=api_key, 
             url=url
         )

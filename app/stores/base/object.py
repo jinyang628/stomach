@@ -90,11 +90,12 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")
             raise e
-
+        
     def insert(
         self,
         objs: List[dict],
-    ) -> List[str]:
+        return_column: str,
+    ) -> List[any]:
         statements = [
             self._dict_to_insert_statement(table_name=self._table_name, dict=obj)
             for obj in objs
@@ -104,7 +105,7 @@ class ObjectStore:
             rowids = [r.last_insert_rowid for r in rss]
             logging.debug(rowids)
             _dicts = self._get_by_rowids(rowids=rowids)
-            return [d["id"] for d in _dicts]
+            return [d[return_column] for d in _dicts]
         except Exception as e:
             logging.error(f"Error raised for SQL {[st.sql for st in statements]}: {e}")
             raise e
@@ -216,6 +217,19 @@ class ObjectStore:
 
         return libsql_client.Statement(sql=sql)
 
+    def _specified_column_to_delete_statement(
+        self,
+        table_name: str,
+        specified_column: str,
+        values: List[str],
+    ) -> libsql_client.Statement:
+        sql = f"""DELETE 
+                    FROM {table_name}
+                    WHERE {specified_column} IN ({','.join([self._value_to_sql_value(value) for value in values])})"""
+        logging.debug(sql)
+
+        return libsql_client.Statement(sql=sql)
+    
     def _ids_to_get_statement(
         self,
         table_name: str,
@@ -226,7 +240,7 @@ class ObjectStore:
                     WHERE id IN ({','.join([self._value_to_sql_value(id) for id in ids])})"""
         logging.debug(sql)
         return libsql_client.Statement(sql=sql)
-
+    
     def _value_to_sql_value(
         self,
         value: any,
@@ -251,3 +265,51 @@ class ObjectStore:
         #     return f"NULL"
         else:
             raise Exception(f"Unknown type: {type(value)}")
+        
+    ####
+    #### COMMON
+    ####
+    
+    def get_values_by_matching_condition(
+        self,
+        column_to_match: str,
+        matching_value: any,
+        column_to_return: str 
+    ) -> List[any]:
+        """
+        Get values from column_to_return for rows where column_to_match equals matching_value.
+
+        Args:
+        column_to_match (str): The column to match against.
+        matching_value (any): The value to match in column_to_match.
+        column_to_return (str): The column from which to return values.
+
+        Returns:
+        List[any]: A list of values from column_to_return.
+        """
+        sql = f"""SELECT {column_to_return}
+                  FROM {self._table_name}
+                  WHERE {column_to_match} = {self._value_to_sql_value(matching_value)}"""
+        logging.debug(sql)
+        try:
+            statement = libsql_client.Statement(sql=sql)
+            rs = self._db_client.execute(statement=statement)
+            return [row[0] for row in rs.rows]
+        except Exception as e:
+            logging.error(f"Error found for statement {statement.sql}: {e}")
+            raise e
+    
+        
+    def delete_with_specified_column(
+        self,
+        specified_column: str,
+        values: List[str],
+    ) -> bool:
+        statement = self._specified_column_to_delete_statement(table_name=self._table_name, specified_column=specified_column, values=values)
+        try:
+            rs = self._db_client.execute(statement=statement)
+            logging.debug(rs.rows_affected)
+            return rs.rows_affected == len(values)
+        except Exception as e:
+            logging.error(f"Error found for statement {statement.sql}: {e}")
+            raise e

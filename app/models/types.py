@@ -8,5 +8,11 @@ class _PostEntriesInput(BaseModel):
     url: str
     tasks: List[Task]
     
+    class Config:
+        extra = 'forbid'
+    
 class ValidateInput(BaseModel):
     api_key: str
+    
+    class Config:
+        extra = 'forbid'

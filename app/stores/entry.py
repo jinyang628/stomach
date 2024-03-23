@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import List
+from typing import Any, List
 from app.models.stores.entry import Entry
 from app.stores.base.object import ObjectStore
 
@@ -15,9 +15,6 @@ class EntryObjectStore:
             table_name=os.environ.get("TURSO_DB_ENTRY_TABLE_NAME"),
         )
 
-    def insert(self, entries: List[Entry]) -> List[int]:
-        return self._store.insert(objs=[entry.model_dump() for entry in entries])
-
     def get(
         self,
         ids: List[int],
@@ -30,3 +27,11 @@ class EntryObjectStore:
 
     def delete(self, ids: List[int]) -> bool:
         return self._store.delete(ids=ids)
+    
+    def insert(
+        self, 
+        entries: List[Entry], 
+        return_column: Any = "id"
+    ) -> List[str]:
+        return self._store.insert(objs=[entry.model_dump() for entry in entries], return_column=return_column)
+        

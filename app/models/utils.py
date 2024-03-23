@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List
 
-
 def sql_value_to_typed_value(
     dict: dict,
     key: str,
