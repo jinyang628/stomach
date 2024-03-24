@@ -17,7 +17,8 @@ def test_post_entry(mock_store, entry_input):
     expected_entry_id: str = "test_entry_id"
     mock_store.return_value.insert.return_value = expected_entry_id
     entry_id: str = EntryService.post_entry(entry_input)
-    
+    assert entry_id == expected_entry_id
+
     mock_store.return_value.insert.assert_called_once()
     args, kwargs = mock_store.return_value.insert.call_args
     assert 'entries' in kwargs
@@ -26,7 +27,6 @@ def test_post_entry(mock_store, entry_input):
     assert isinstance(entries[0], Entry)
     assert entries[0].api_key == entry_input.api_key
     assert entries[0].url == entry_input.url
-    assert entry_id == expected_entry_id
 
 def test_post_entry_handles_exceptions(mock_store, entry_input):
     mock_store.return_value.insert.side_effect = Exception("Test Exception")

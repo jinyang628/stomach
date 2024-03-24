@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 import pytest
 from app.models.enum.task import Task
-from app.models.types import _PostEntriesInput
+from app.models.types import _PostEntriesInput, ValidateInput
 
 
 _POST_ENTRIES_INPUT_VALID_DATA = [
@@ -30,3 +30,30 @@ _POST_ENTRIES_INPUT_INVALID_DATA = [
 ]
 
 @pytest.mark.parametrize("api_key, url, tasks", _POST_ENTRIES_INPUT_INVALID_DATA)
+def test_post_entries_input_invalid_data(api_key, url, tasks):
+    with pytest.raises(ValidationError):
+        _PostEntriesInput(api_key=api_key, url=url, tasks=tasks)
+        
+VALIDATE_INPUT_VALID_DATA = [
+    ("test_api_key")
+]
+
+@pytest.mark.parametrize("api_key", VALIDATE_INPUT_VALID_DATA)
+def test_validate_input_valid_data(api_key):
+    try:
+        input_data = ValidateInput(api_key=api_key)
+        assert input_data.api_key == api_key
+    except ValidationError:
+        pytest.fail("Validation error raised unexpectedly for validate_input_valid_data")
+        
+VALIDATE_INPUT_INVALID_DATA = [
+    # Missing
+    (None),
+    # Wrong type
+    (123)   
+]
+
+@pytest.mark.parametrize("api_key", VALIDATE_INPUT_INVALID_DATA)
+def test_validate_input_invalid_data(api_key):
+    with pytest.raises(ValidationError):
+        ValidateInput(api_key=api_key)

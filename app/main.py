@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from dotenv import dotenv_values
 from fastapi.middleware.cors import CORSMiddleware
-from app.services import entry_service
 
-from app.models.types import _PostEntriesInput
 from app.controllers.entry_controller import entry_controller_router
 from app.controllers.api_key_controller import api_key_controller_router
 
