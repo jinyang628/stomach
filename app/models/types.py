@@ -6,7 +6,7 @@ from app.models.enum.task import Task
 class _PostEntriesInput(BaseModel):
     api_key: str
     url: str
-    tasks: List[Task]
+    tasks: List[str]
     
     class Config:
         extra = 'forbid'

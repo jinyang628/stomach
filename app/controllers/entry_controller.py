@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request
 from app.models.types import _PostEntriesInput
 from app.services.entry_service import EntryService
 import logging
@@ -17,14 +17,15 @@ class EntryController:
         
         router = self.router
         service = self.service
-        
-        @router.post("/")
+                
+        @router.post("")
         async def start(input: _PostEntriesInput):
             try:
                 entry_id: str = service.post_entry(input=input, return_column="entry_id")
+                return {"entry_id": entry_id}
             except Exception as e:
                 log.error("Error: %s", str(e))
-                return {"Error": str(e)}, 500
+                raise HTTPException(status_code=500, detail=str(e))
 
 entry_controller_router = EntryController().router
 

@@ -44,7 +44,8 @@ class UserObjectStore:
             matching_value=api_key,
             column_to_return="id",
         )
-        assert len(ids) <= 1
+        if len(ids) > 1:
+            raise Exception(f"Multiple users found for api_key: {api_key}")
         if len(ids) == 0:
             return False
         return True

@@ -16,7 +16,7 @@ def entry_input():
 def test_post_entry(mock_store, entry_input):
     expected_entry_id: str = "test_entry_id"
     mock_store.return_value.insert.return_value = expected_entry_id
-    entry_id: str = EntryService.post_entry(entry_input)
+    entry_id: str = EntryService().post_entry(input=entry_input, return_column="id")
     assert entry_id == expected_entry_id
 
     mock_store.return_value.insert.assert_called_once()
@@ -32,6 +32,6 @@ def test_post_entry_handles_exceptions(mock_store, entry_input):
     mock_store.return_value.insert.side_effect = Exception("Test Exception")
     
     with pytest.raises(Exception) as excinfo:
-        EntryService.post_entry(entry_input)
+        EntryService().post_entry(input=entry_input, return_column="id")
     
     assert "Test Exception" in str(excinfo.value)
