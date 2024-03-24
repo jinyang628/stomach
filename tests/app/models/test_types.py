@@ -1,7 +1,9 @@
 from pydantic import ValidationError
 import pytest
 from app.models.enum.task import Task
-from app.models.types import _PostEntriesInput, ValidateInput
+from app.models.logic.conversation import Conversation
+from app.models.logic.message import UserMessage
+from app.models.types import _PostEntriesInput, InferenceInput
 
 
 _POST_ENTRIES_INPUT_VALID_DATA = [
@@ -34,26 +36,57 @@ def test_post_entries_input_invalid_data(api_key, url, tasks):
     with pytest.raises(ValidationError):
         _PostEntriesInput(api_key=api_key, url=url, tasks=tasks)
         
-VALIDATE_INPUT_VALID_DATA = [
-    ("test_api_key")
+INFERENCE_INPUT_VALID_DATA = [
+    (
+        {
+            "title": "test_title",
+            "UserMessage1": "First message",
+            "AssistantMessage1": "Second message",
+        },
+        [Task.SUMMARISE]
+    ),
+    (
+        {
+            "title": "test_title",
+            "UserMessage1": "First message",
+            "AssistantMessage1": "Second message",
+        },
+        [Task.SUMMARISE, Task.PRACTICE]
+    )
 ]
 
-@pytest.mark.parametrize("api_key", VALIDATE_INPUT_VALID_DATA)
-def test_validate_input_valid_data(api_key):
+@pytest.mark.parametrize("conversation, tasks", INFERENCE_INPUT_VALID_DATA)
+def test_inference_input_valid_data(conversation, tasks):
     try:
-        input_data = ValidateInput(api_key=api_key)
-        assert input_data.api_key == api_key
+        input_data = InferenceInput(conversation=conversation, tasks=tasks)
+        assert input_data.conversation == conversation
+        assert input_data.tasks == tasks
     except ValidationError:
-        pytest.fail("Validation error raised unexpectedly for validate_input_valid_data")
-        
-VALIDATE_INPUT_INVALID_DATA = [
-    # Missing
-    (None),
-    # Wrong type
-    (123)   
+        pytest.fail("Validation error raised unexpectedly for _post_entries_input_valid_data")
+    
+INFERENCE_INPUT_INVALID_DATA = [
+    (
+        "test_conversation", 
+        [Task.SUMMARISE, Task.PRACTICE]
+    ),
+    (
+        123, 
+        [Task.SUMMARISE]
+    ),
+    (
+        {
+            "title": "test_title",
+            "UserMessage1": "First message",
+            "AssistantMessage1": "Second message",
+        },
+        "task_summarise"
+    )
 ]
 
-@pytest.mark.parametrize("api_key", VALIDATE_INPUT_INVALID_DATA)
-def test_validate_input_invalid_data(api_key):
+@pytest.mark.parametrize("conversation, tasks", INFERENCE_INPUT_INVALID_DATA)
+def test_inference_input_invalid_data(conversation, tasks):
     with pytest.raises(ValidationError):
-        ValidateInput(api_key=api_key)
+        InferenceInput(conversation=conversation, tasks=tasks)
+        
+        
+        
