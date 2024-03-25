@@ -12,7 +12,7 @@ class Inference(BaseModel):
     entry_id: str
     conversation: str
     summary: Optional[str]
-    exercise: Optional[str]
+    practice: Optional[str]
 
     @classmethod
     def local(
@@ -20,14 +20,14 @@ class Inference(BaseModel):
         entry_id: str,
         conversation: str,
         summary: Optional[str],
-        exercise: Optional[str],
+        practice: Optional[str],
     ):
         return cls(
             version=INFERENCE_VERSION,
             entry_id=entry_id,
             conversation=conversation,
             summary=summary,
-            exercise=exercise,
+            practice=practice,
         )
 
     @classmethod
@@ -43,5 +43,5 @@ class Inference(BaseModel):
                 dict=kwargs, key="conversation", type=str
             ),
             summary=sql_value_to_typed_value(dict=kwargs, key="summary", type=str),
-            exercise=sql_value_to_typed_value(dict=kwargs, key="exercise", type=str),
+            practice=sql_value_to_typed_value(dict=kwargs, key="practice", type=str),
         )

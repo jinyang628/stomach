@@ -56,7 +56,21 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error deleting table {table_name}: {e}")
             raise e
-
+    
+    def add_column(
+        self,
+        table_name: str,
+        column_name: str,
+        column_type: str,
+    ) -> None:
+        sql = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}"
+        try:
+            statement = libsql_client.Statement(sql=sql)
+            self._db_client.execute(statement=statement)
+            logging.info(f"Column {column_name} added to table {table_name} successfully.")
+        except Exception as e:
+            logging.error(f"Error adding column {column_name} to table {table_name}: {e}")
+            raise e
     ####
     #### CRUD
     ####
@@ -100,6 +114,7 @@ class ObjectStore:
             self._dict_to_insert_statement(table_name=self._table_name, dict=obj)
             for obj in objs
         ]
+        
         try:
             rss = self._db_client.batch_execute(statements=statements)
             rowids = [r.last_insert_rowid for r in rss]
@@ -175,6 +190,7 @@ class ObjectStore:
 
         sql = f"""INSERT INTO {table_name} ({','.join([f'{k}' for k in _dict.keys()])})
                 VALUES ({','.join([f'{self._value_to_sql_value(v)}' for v in _dict.values()])})"""
+            
         logging.debug(sql)
 
         return libsql_client.Statement(sql=sql)

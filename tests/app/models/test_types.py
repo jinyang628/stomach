@@ -1,9 +1,7 @@
 from pydantic import ValidationError
 import pytest
 from app.models.enum.task import Task
-from app.models.logic.conversation import Conversation
-from app.models.logic.message import UserMessage
-from app.models.types import _PostEntriesInput, InferenceInput
+from app.models.types import EntryDbInput, InferenceInput
 
 
 _POST_ENTRIES_INPUT_VALID_DATA = [
@@ -13,7 +11,7 @@ _POST_ENTRIES_INPUT_VALID_DATA = [
 @pytest.mark.parametrize("api_key, url, tasks", _POST_ENTRIES_INPUT_VALID_DATA)
 def test_post_entries_input_valid_data(api_key, url, tasks):
     try:
-        input_data = _PostEntriesInput(api_key=api_key, url=url, tasks=tasks)
+        input_data = EntryDbInput(api_key=api_key, url=url, tasks=tasks)
         assert input_data.api_key == api_key
         assert input_data.url == url
         assert input_data.tasks == tasks
@@ -34,7 +32,7 @@ _POST_ENTRIES_INPUT_INVALID_DATA = [
 @pytest.mark.parametrize("api_key, url, tasks", _POST_ENTRIES_INPUT_INVALID_DATA)
 def test_post_entries_input_invalid_data(api_key, url, tasks):
     with pytest.raises(ValidationError):
-        _PostEntriesInput(api_key=api_key, url=url, tasks=tasks)
+        EntryDbInput(api_key=api_key, url=url, tasks=tasks)
         
 INFERENCE_INPUT_VALID_DATA = [
     (

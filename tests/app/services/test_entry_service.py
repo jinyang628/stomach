@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 from app.models.enum.task import Task
 from app.models.stores.entry import Entry
-from app.services.entry_service import EntryService, _PostEntriesInput
+from app.services.entry_service import EntryService, EntryDbInput
 
 @pytest.fixture
 def mock_store():
@@ -11,12 +11,12 @@ def mock_store():
 
 @pytest.fixture
 def entry_input():
-    return _PostEntriesInput(api_key="test_api_key", url="http://test.url", tasks=[Task.SUMMARISE])
+    return EntryDbInput(api_key="test_api_key", url="http://test.url", tasks=[Task.SUMMARISE])
 
 def test_post_entry(mock_store, entry_input):
     expected_entry_id: str = "test_entry_id"
     mock_store.return_value.insert.return_value = expected_entry_id
-    entry_id: str = EntryService().post_entry(input=entry_input, return_column="id")
+    entry_id: str = EntryService().post(input=entry_input, return_column="id")
     assert entry_id == expected_entry_id
 
     mock_store.return_value.insert.assert_called_once()
@@ -32,6 +32,6 @@ def test_post_entry_handles_exceptions(mock_store, entry_input):
     mock_store.return_value.insert.side_effect = Exception("Test Exception")
     
     with pytest.raises(Exception) as excinfo:
-        EntryService().post_entry(input=entry_input, return_column="id")
+        EntryService().post(input=entry_input, return_column="id")
     
     assert "Test Exception" in str(excinfo.value)

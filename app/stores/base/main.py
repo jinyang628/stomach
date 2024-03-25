@@ -7,14 +7,8 @@
 
 # def main():
 #     obj_store = ObjectStore("inference")
-#     obj_store.create_table("inference", {
-#         "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-#         "version": "INTEGER",
-#         "entry_id": "TEXT",
-#         "conversation": "JSON",
-#         "summary": "TEXT",
-#         "exercise": "TEXT",
-#     })
+#     obj_store.add_column("inference", "practice", "TEXT")
+
 
 
 # if __name__ == "__main__":

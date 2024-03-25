@@ -1,18 +1,20 @@
 from app.models.logic.conversation import Conversation
 from app.models.stores.entry import Entry
-from app.models.types import _PostEntriesInput, InferenceInput
+from app.models.types import EntryDbInput, InferenceInput
 from app.stores.entry import EntryObjectStore
 import json
 import httpx
-from typing import List
+from typing import Any, List
 from bs4 import BeautifulSoup
-import requests
 from app.models.enum.shareGpt import ShareGpt
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from fastapi import HTTPException
 import httpx
 import os
 from dotenv import load_dotenv
+import logging
+
+log = logging.getLogger(__name__)   
 
 load_dotenv()
 
@@ -20,12 +22,64 @@ BRAIN_API_URL: str = os.getenv("BRAIN_API_URL")
 
 
 class EntryService:
-    async def post_entry(self, input: _PostEntriesInput, return_column: str) -> str:
-        store = EntryObjectStore()
-        entry = Entry.local(api_key=input.api_key, url=input.url)
-        entry_id = store.insert(entries=[entry], return_column=return_column)
-        return entry_id
     
+    ###
+    ### DB logic
+    ###
+    async def post(self, input: list[EntryDbInput], return_column: str) -> list[Any]:
+        store = EntryObjectStore()
+        entry_lst: list[Entry] = []
+        for element in input:
+            entry = Entry.local(api_key=element.api_key, url=element.url)
+            entry_lst.append(entry)
+        identifier_lst: list[Any] = store.insert(entries=entry_lst, return_column=return_column)
+        return identifier_lst
+    
+    ###
+    ### API logic
+    ###
+    async def infer(self, data: InferenceInput) -> dict[str, str]:
+        """Sends a POST request to the Brain for inference and returns a dictionary containing the results of the respective tasks chosen. If the request fails, an HTTPException is raised.
+
+        Args:
+            entry (dict[str, str]): The entry to be sent for inference
+
+        Raises:
+            HTTPException: If inference fails
+        """
+
+        try:
+            if not BRAIN_API_URL:
+                raise ValueError("BRAIN_API_URL is not set in .env file.")
+            url: str = f"{BRAIN_API_URL}/inference"
+
+            data_dict = data.model_dump()
+            
+            # Make a POST request to the Brain repo, set a generous timeout of 20 seconds
+            async with httpx.AsyncClient(timeout=20.0) as client:
+                response = await client.post(url, json=data_dict)
+                if response.status_code != 200:
+                    log.error(f"Inference API call failed with status code {response.status_code}, response: {response.text}")
+                    raise HTTPException(
+                        status_code=500, detail="Failed to complete inference"
+                    )
+                return response.json()
+        except httpx.RequestError as req_error:
+            log.error(f"Request error during inference call: {req_error}")
+            log.error(f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}")
+            if req_error.response:
+                log.error(f"Response status code: {req_error.response.status_code}")
+            raise HTTPException(status_code=500, detail=str(req_error))
+        except json.JSONDecodeError as json_error:
+            log.error(f"JSON decoding error: {json_error}")
+            raise HTTPException(status_code=500, detail="Invalid JSON response")
+        except Exception as e:
+            log.error(f"Unexpected error in infer: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        
+    ###
+    ### Business logic
+    ###
     async def extract_url_content(self, url: str) -> Conversation:
         """Extracts the title and conversation messages from the ShareGPT url provided.
 
@@ -142,36 +196,3 @@ class EntryService:
         # print(pretty_json)
 
         return conversation
-    
-    async def infer(data: InferenceInput):
-        """This is a function that sends a POST request to the Brain for inference. It does not return anything. If the request fails, an HTTPException is raised.
-
-        Args:
-            entry (dict[str, str]): The entry to be sent for inference
-
-        Raises:
-            HTTPException: If inference fails
-        """
-
-        try:
-            if not BRAIN_API_URL:
-                raise ValueError("BRAIN_API_URL is not set in .env file.")
-            url: str = f"{BRAIN_API_URL}/inference"
-
-            data_dict = data.model_dump()
-            if data_dict.get("tasks"):
-                data_dict["tasks"] = [task.value for task in data_dict["tasks"]]
-            else:
-                raise ValueError(
-                    "'tasks' are required for inference. The field in InferenceInput is not supposed to be updated."
-                )
-
-            # Make a POST request to the Brain repo
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url, json=data_dict)
-                if response.status_code != 200:
-                    raise HTTPException(
-                        status_code=500, detail="Failed to complete inference"
-                    )
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
