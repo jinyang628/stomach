@@ -1,4 +1,5 @@
 from typing import List
+
 from app.models.stores.user import User
 from app.stores.user import UserObjectStore
 

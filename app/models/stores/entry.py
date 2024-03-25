@@ -1,10 +1,12 @@
 from typing import Optional
+
 from pydantic import BaseModel
 
 from app.models.utils import generate_identifier, sql_value_to_typed_value
 
 # Update this version accordingly
 ENTRY_VERSION: int = 1
+
 
 class Entry(BaseModel):
     id: Optional[int] = None
@@ -20,12 +22,14 @@ class Entry(BaseModel):
         url: str,
         entry_id: Optional[str] = None,
     ):
-        
+
         return cls(
-            version=ENTRY_VERSION, 
-            entry_id=entry_id if entry_id else generate_identifier(cls.__name__.lower()), 
-            api_key=api_key, 
-            url=url
+            version=ENTRY_VERSION,
+            entry_id=(
+                entry_id if entry_id else generate_identifier(cls.__name__.lower())
+            ),
+            api_key=api_key,
+            url=url,
         )
 
     @classmethod

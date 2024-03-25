@@ -1,6 +1,7 @@
-import os
 import logging
+import os
 from typing import Any, List
+
 from app.models.stores.entry import Entry
 from app.stores.base.object import ObjectStore
 
@@ -27,11 +28,8 @@ class EntryObjectStore:
 
     def delete(self, ids: List[int]) -> bool:
         return self._store.delete(ids=ids)
-    
-    def insert(
-        self, 
-        entries: List[Entry], 
-        return_column: Any = "id"
-    ) -> List[str]:
-        return self._store.insert(objs=[entry.model_dump() for entry in entries], return_column=return_column)
-        
+
+    def insert(self, entries: List[Entry], return_column: Any = "id") -> List[str]:
+        return self._store.insert(
+            objs=[entry.model_dump() for entry in entries], return_column=return_column
+        )

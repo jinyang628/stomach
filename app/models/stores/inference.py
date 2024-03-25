@@ -1,10 +1,12 @@
 from typing import Optional
+
 from pydantic import BaseModel
 
 from app.models.utils import sql_value_to_typed_value
 
 # Update this version accordingly
 INFERENCE_VERSION: int = 1
+
 
 class Inference(BaseModel):
     id: Optional[int] = None

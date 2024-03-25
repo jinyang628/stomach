@@ -1,20 +1,21 @@
+import json
+import logging
+import os
+from typing import Any, List
+
+import httpx
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from fastapi import HTTPException
+
+from app.models.enum.shareGpt import ShareGpt
 from app.models.logic.conversation import Conversation
+from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
 from app.models.types import EntryDbInput, InferenceInput
 from app.stores.entry import EntryObjectStore
-import json
-import httpx
-from typing import Any, List
-from bs4 import BeautifulSoup
-from app.models.enum.shareGpt import ShareGpt
-from app.models.logic.message import AssistantMessage, Message, UserMessage
-from fastapi import HTTPException
-import httpx
-import os
-from dotenv import load_dotenv
-import logging
 
-log = logging.getLogger(__name__)   
+log = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -22,7 +23,7 @@ BRAIN_API_URL: str = os.getenv("BRAIN_API_URL")
 
 
 class EntryService:
-    
+
     ###
     ### DB logic
     ###
@@ -32,9 +33,11 @@ class EntryService:
         for element in input:
             entry = Entry.local(api_key=element.api_key, url=element.url)
             entry_lst.append(entry)
-        identifier_lst: list[Any] = store.insert(entries=entry_lst, return_column=return_column)
+        identifier_lst: list[Any] = store.insert(
+            entries=entry_lst, return_column=return_column
+        )
         return identifier_lst
-    
+
     ###
     ### API logic
     ###
@@ -54,19 +57,23 @@ class EntryService:
             url: str = f"{BRAIN_API_URL}/inference"
 
             data_dict = data.model_dump()
-            
+
             # Make a POST request to the Brain repo, set a generous timeout of 20 seconds
             async with httpx.AsyncClient(timeout=20.0) as client:
                 response = await client.post(url, json=data_dict)
                 if response.status_code != 200:
-                    log.error(f"Inference API call failed with status code {response.status_code}, response: {response.text}")
+                    log.error(
+                        f"Inference API call failed with status code {response.status_code}, response: {response.text}"
+                    )
                     raise HTTPException(
                         status_code=500, detail="Failed to complete inference"
                     )
                 return response.json()
         except httpx.RequestError as req_error:
             log.error(f"Request error during inference call: {req_error}")
-            log.error(f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}")
+            log.error(
+                f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}"
+            )
             raise HTTPException(status_code=500, detail=str(req_error))
         except json.JSONDecodeError as json_error:
             log.error(f"JSON decoding error: {json_error}")
@@ -74,7 +81,7 @@ class EntryService:
         except Exception as e:
             log.error(f"Unexpected error in infer: {e}")
             raise HTTPException(status_code=500, detail=str(e))
-        
+
     ###
     ### Business logic
     ###
@@ -187,7 +194,6 @@ class EntryService:
                 # Keep track of the first message in the Conversation class
                 conversation = Conversation(title=title, curr_message=message)
             curr_message = message
-
 
         # Uncomment this to see the prettified conversation
         # pretty_json: str = json.dumps(conversation.jsonify(), indent=4)

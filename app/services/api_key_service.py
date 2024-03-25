@@ -1,5 +1,6 @@
 from app.stores.user import UserObjectStore
 
+
 class ApiKeyService:
     def validate(self, api_key: str) -> bool:
         store = UserObjectStore()

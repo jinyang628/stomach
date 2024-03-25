@@ -1,7 +1,8 @@
+import json
 from typing import List
+
 from app.models.stores.inference import Inference
 from app.stores.inference import InferenceObjectStore
-import json
 
 
 def test_insert_get_update_delete():

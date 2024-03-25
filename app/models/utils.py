@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+
 def sql_value_to_typed_value(
     dict: dict,
     key: str,
@@ -27,7 +28,8 @@ def sql_value_to_typed_value(
         return [int(v) for v in value.split(",")]
     else:
         raise ValueError(f"Unknown type: {type(value)}")
-    
+
+
 def generate_identifier(value: str) -> str:
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d%H%M%S")

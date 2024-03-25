@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+
 class Task(StrEnum):
-    SUMMARISE = "summarise",
+    SUMMARISE = ("summarise",)
     PRACTICE = "practice"

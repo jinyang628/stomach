@@ -1,6 +1,7 @@
-import os
 import logging
+import os
 from typing import Any, List
+
 from app.models.stores.inference import Inference
 from app.stores.base.object import ObjectStore
 
@@ -15,7 +16,9 @@ class InferenceObjectStore:
             table_name=os.environ.get("TURSO_DB_INFERENCE_TABLE_NAME"),
         )
 
-    def insert(self, inferences: List[Inference], return_column: Any = "id") -> List[int]:
+    def insert(
+        self, inferences: List[Inference], return_column: Any = "id"
+    ) -> List[int]:
         return self._store.insert(
             objs=[inference.model_dump() for inference in inferences],
             return_column=return_column,

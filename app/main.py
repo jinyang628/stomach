@@ -1,9 +1,9 @@
-from fastapi import FastAPI
 from dotenv import dotenv_values
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.controllers.entry_controller import entry_controller_router
 from app.controllers.api_key_controller import api_key_controller_router
+from app.controllers.entry_controller import entry_controller_router
 
 config = dotenv_values(".env")
 
@@ -20,5 +20,3 @@ app.add_middleware(
 
 app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")
 app.include_router(api_key_controller_router, tags=["api_keys"], prefix="/api/api_keys")
-
-    

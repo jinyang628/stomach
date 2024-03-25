@@ -10,6 +10,5 @@
 #     obj_store.add_column("inference", "practice", "TEXT")
 
 
-
 # if __name__ == "__main__":
 #     main()

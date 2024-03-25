@@ -22,6 +22,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Check code formatting with isort
+      run: isort --check-only --diff .
+
     - name: Run pytest
       run: pytest
 

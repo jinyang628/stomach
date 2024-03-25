@@ -1,8 +1,9 @@
-import os
 import logging
-from app.stores.base.object import ObjectStore
+import os
 from typing import Any, List
+
 from app.models.stores.user import User
+from app.stores.base.object import ObjectStore
 
 log = logging.getLogger(__name__)
 
@@ -15,14 +16,9 @@ class UserObjectStore:
             table_name=os.environ.get("TURSO_DB_USER_TABLE_NAME"),
         )
 
-    def insert(
-        self, 
-        users: List[User], 
-        return_column: Any = "id"
-    ) -> List[int]:
+    def insert(self, users: List[User], return_column: Any = "id") -> List[int]:
         return self._store.insert(
-            objs=[user.model_dump() for user in users],
-            return_column=return_column
+            objs=[user.model_dump() for user in users], return_column=return_column
         )
 
     def get(
@@ -37,7 +33,7 @@ class UserObjectStore:
 
     def delete(self, ids: List[int]) -> bool:
         return self._store.delete(ids=ids)
-    
+
     def validate_api_key(self, api_key: str) -> bool:
         ids: list[str] = self._store.get_values_by_matching_condition(
             column_to_match="api_key",

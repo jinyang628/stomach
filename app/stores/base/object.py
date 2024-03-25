@@ -56,7 +56,7 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error deleting table {table_name}: {e}")
             raise e
-    
+
     def add_column(
         self,
         table_name: str,
@@ -67,10 +67,15 @@ class ObjectStore:
         try:
             statement = libsql_client.Statement(sql=sql)
             self._db_client.execute(statement=statement)
-            logging.info(f"Column {column_name} added to table {table_name} successfully.")
+            logging.info(
+                f"Column {column_name} added to table {table_name} successfully."
+            )
         except Exception as e:
-            logging.error(f"Error adding column {column_name} to table {table_name}: {e}")
+            logging.error(
+                f"Error adding column {column_name} to table {table_name}: {e}"
+            )
             raise e
+
     ####
     #### CRUD
     ####
@@ -104,7 +109,7 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")
             raise e
-        
+
     def insert(
         self,
         objs: List[dict],
@@ -114,7 +119,7 @@ class ObjectStore:
             self._dict_to_insert_statement(table_name=self._table_name, dict=obj)
             for obj in objs
         ]
-        
+
         try:
             rss = self._db_client.batch_execute(statements=statements)
             rowids = [r.last_insert_rowid for r in rss]
@@ -177,9 +182,9 @@ class ObjectStore:
         table_name: str,
         dict: dict,
     ) -> libsql_client.Statement:
-        _dict = {k: v for k, v in dict.items() if k not in ['created_at', 'updated_at']}
+        _dict = {k: v for k, v in dict.items() if k not in ["created_at", "updated_at"]}
 
-        # TODO: Right now, we are manually processing the string to be compatible with SQLite. This is not the best practice and we should integrate an ORM somehow. 
+        # TODO: Right now, we are manually processing the string to be compatible with SQLite. This is not the best practice and we should integrate an ORM somehow.
         # Manually construct values string
         values = []
         for v in _dict.values():
@@ -193,10 +198,10 @@ class ObjectStore:
                 value_str = str(v)
             values.append(value_str)
 
-        columns = ', '.join(_dict.keys())
-        values_str = ', '.join(values)
+        columns = ", ".join(_dict.keys())
+        values_str = ", ".join(values)
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str})"
-        
+
         logging.debug(sql)
 
         return libsql_client.Statement(sql=sql)
@@ -251,7 +256,7 @@ class ObjectStore:
         logging.debug(sql)
 
         return libsql_client.Statement(sql=sql)
-    
+
     def _ids_to_get_statement(
         self,
         table_name: str,
@@ -262,7 +267,7 @@ class ObjectStore:
                     WHERE id IN ({','.join([self._value_to_sql_value(id) for id in ids])})"""
         logging.debug(sql)
         return libsql_client.Statement(sql=sql)
-    
+
     def _value_to_sql_value(
         self,
         value: any,
@@ -287,16 +292,13 @@ class ObjectStore:
         #     return f"NULL"
         else:
             raise Exception(f"Unknown type: {type(value)}")
-        
+
     ####
     #### COMMON
     ####
-    
+
     def get_values_by_matching_condition(
-        self,
-        column_to_match: str,
-        matching_value: any,
-        column_to_return: str 
+        self, column_to_match: str, matching_value: any, column_to_return: str
     ) -> List[any]:
         """
         Get values from column_to_return for rows where column_to_match equals matching_value.
@@ -320,14 +322,17 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")
             raise e
-    
-        
+
     def delete_with_specified_column(
         self,
         specified_column: str,
         values: List[str],
     ) -> bool:
-        statement = self._specified_column_to_delete_statement(table_name=self._table_name, specified_column=specified_column, values=values)
+        statement = self._specified_column_to_delete_statement(
+            table_name=self._table_name,
+            specified_column=specified_column,
+            values=values,
+        )
         try:
             rs = self._db_client.execute(statement=statement)
             logging.debug(rs.rows_affected)
