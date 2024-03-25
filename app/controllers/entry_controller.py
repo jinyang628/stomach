@@ -55,30 +55,22 @@ class EntryController:
                 inference_input = InferenceInput(conversation=conversation.jsonify(), tasks=input.tasks)
                 
                 try:
-                    result: dict[str, str] = await service.infer(data=inference_input)
+                    result: dict[str, Any] = await service.infer(data=inference_input)
                 except Exception as e:
                     log.error("Error posting infer request to BRAIN in entry_controller.py: %s", str(e))
                     raise HTTPException(status_code=500, detail=str(e))
                 
                 entry_id: str = await entry_id_task   
                 
-                serialised_conversation: str = json.dumps(jsonified_conversation)
-                # inference_db_input = InferenceDbInput(
-                #     entry_id=entry_id, 
-                #     conversation=serialised_conversation, 
-                #     summary=result.get("summary"), 
-                #     practice=result.get("practice")
-                # )
-                
                 inference_db_input = InferenceDbInput(
                     entry_id=entry_id, 
-                    conversation="test", 
-                    summary="test", 
-                    practice="test"
+                    conversation=json.dumps(jsonified_conversation), 
+                    summary=result.get("summary"), 
+                    practice=result.get("practice")
                 )
                 
                 try:              
-                    identifier: str = await self.inference_controller.post(input=inference_db_input)
+                    await self.inference_controller.post(input=inference_db_input)
                 except Exception as e:
                     log.error("Error posting to inference db in entry_controller.py: %s", str(e))
                     raise HTTPException(status_code=500, detail=str(e))

@@ -38,7 +38,7 @@ class EntryService:
     ###
     ### API logic
     ###
-    async def infer(self, data: InferenceInput) -> dict[str, str]:
+    async def infer(self, data: InferenceInput) -> dict[str, Any]:
         """Sends a POST request to the Brain for inference and returns a dictionary containing the results of the respective tasks chosen. If the request fails, an HTTPException is raised.
 
         Args:
@@ -67,8 +67,6 @@ class EntryService:
         except httpx.RequestError as req_error:
             log.error(f"Request error during inference call: {req_error}")
             log.error(f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}")
-            if req_error.response:
-                log.error(f"Response status code: {req_error.response.status_code}")
             raise HTTPException(status_code=500, detail=str(req_error))
         except json.JSONDecodeError as json_error:
             log.error(f"JSON decoding error: {json_error}")

@@ -177,20 +177,26 @@ class ObjectStore:
         table_name: str,
         dict: dict,
     ) -> libsql_client.Statement:
-        _dict = dict.copy()
-        if "created_at" in _dict:
-            _dict.pop("created_at")
-        if "updated_at" in _dict:
-            _dict.pop("updated_at")
+        _dict = {k: v for k, v in dict.items() if k not in ['created_at', 'updated_at']}
 
-        # _iter = _dict.copy()
-        # for k, v in _iter.items():
-        #     if v is None:
-        #         _dict.pop(k)
+        # TODO: Right now, we are manually processing the string to be compatible with SQLite. This is not the best practice and we should integrate an ORM somehow. 
+        # Manually construct values string
+        values = []
+        for v in _dict.values():
+            if isinstance(v, str):
+                # Escape single quotes in strings
+                escaped_value = v.replace("'", "''")
+                value_str = f"'{escaped_value}'"
+            elif v is None:
+                value_str = "NULL"
+            else:
+                value_str = str(v)
+            values.append(value_str)
 
-        sql = f"""INSERT INTO {table_name} ({','.join([f'{k}' for k in _dict.keys()])})
-                VALUES ({','.join([f'{self._value_to_sql_value(v)}' for v in _dict.values()])})"""
-            
+        columns = ', '.join(_dict.keys())
+        values_str = ', '.join(values)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str})"
+        
         logging.debug(sql)
 
         return libsql_client.Statement(sql=sql)
