@@ -13,10 +13,10 @@ def mock_store():
 def entry_input():
     return EntryDbInput(api_key="test_api_key", url="http://test.url", tasks=[Task.SUMMARISE])
 
-def test_post_entry(mock_store, entry_input):
+async def test_post(mock_store, entry_input):
     expected_entry_id: str = "test_entry_id"
     mock_store.return_value.insert.return_value = expected_entry_id
-    entry_id: str = EntryService().post(input=entry_input, return_column="id")
+    entry_id: str = await EntryService().post(input=entry_input, return_column="id")
     assert entry_id == expected_entry_id
 
     mock_store.return_value.insert.assert_called_once()
@@ -28,10 +28,10 @@ def test_post_entry(mock_store, entry_input):
     assert entries[0].api_key == entry_input.api_key
     assert entries[0].url == entry_input.url
 
-def test_post_entry_handles_exceptions(mock_store, entry_input):
+async def test_post_entry_handles_exceptions(mock_store, entry_input):
     mock_store.return_value.insert.side_effect = Exception("Test Exception")
     
     with pytest.raises(Exception) as excinfo:
-        EntryService().post(input=entry_input, return_column="id")
+        await EntryService().post(input=entry_input, return_column="id")
     
     assert "Test Exception" in str(excinfo.value)
