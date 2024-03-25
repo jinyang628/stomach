@@ -26,7 +26,7 @@ def sql_value_to_typed_value(
     elif type is List[int]:
         return [int(v) for v in value.split(",")]
     else:
-        raise Exception(f"Unknown type: {type(value)}")
+        raise ValueError(f"Unknown type: {type(value)}")
     
 def generate_identifier(value: str) -> str:
     now = datetime.now()
