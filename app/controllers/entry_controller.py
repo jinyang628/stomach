@@ -7,8 +7,6 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.controllers.inference_controller import InferenceController
-from app.models.enum.task import Task
-from app.models.logic.conversation import Conversation
 from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
 from app.services.entry_service import EntryService
 
@@ -46,27 +44,20 @@ class EntryController:
                         )
                         raise HTTPException(status_code=500, detail=str(e))
 
-                async def extract_url_content() -> Conversation:
-                    conversation: Conversation = await service.extract_url_content(
-                        url=input.url
+                async def extract_url_content() -> dict[str, str]:
+                    jsonified_conversation: dict[str, str] = (
+                        await service.extract_url_content(url=input.url)
                     )
-                    return conversation
+                    return jsonified_conversation
 
                 entry_id_task = asyncio.create_task(post())
                 conversation_task = asyncio.create_task(extract_url_content())
 
-                # Defensively validate task_str is part of enum value (even though we still have to send it as a string through the API call)
-                for task_str in input.tasks:
-                    if task_str not in Task._value2member_map_:
-                        raise HTTPException(
-                            status_code=400, detail=f"Invalid task: {task_str}"
-                        )
+                service.validate_tasks(input.tasks)
 
-                conversation: Conversation = await conversation_task
-                jsonified_conversation: dict[str, str] = conversation.jsonify()
-
+                jsonified_conversation: dict[str, str] = await conversation_task
                 inference_input = InferenceInput(
-                    conversation=conversation.jsonify(), tasks=input.tasks
+                    conversation=jsonified_conversation, tasks=input.tasks
                 )
 
                 try:

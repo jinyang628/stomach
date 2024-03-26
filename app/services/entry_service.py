@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 
 from app.models.enum.shareGpt import ShareGpt
+from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
@@ -85,7 +86,21 @@ class EntryService:
     ###
     ### Business logic
     ###
-    async def extract_url_content(self, url: str) -> Conversation:
+
+    def validate_tasks(self, tasks: list[str]) -> None:
+        """Defensively validates task_str is part of enum value (even though we still have to send it as a string through the API call)
+
+        Args:
+            tasks (list[str]): The values of the tasks which are sent from Fingers
+
+        Raises:
+            HTTPException: If the task_str is not part of the enum value
+        """
+        for task_str in tasks:
+            if task_str not in Task._value2member_map_:
+                raise HTTPException(status_code=400, detail=f"Invalid task: {task_str}")
+
+    async def extract_url_content(self, url: str) -> dict[str, str]:
         """Extracts the title and conversation messages from the ShareGPT url provided.
 
         Args:
@@ -93,9 +108,6 @@ class EntryService:
 
         Raises:
             ValueError: If the expected tags are not found in the HMTL content
-
-        Returns:
-            str: _description_
         """
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -199,4 +211,4 @@ class EntryService:
         # pretty_json: str = json.dumps(conversation.jsonify(), indent=4)
         # print(pretty_json)
 
-        return conversation
+        return conversation.jsonify()
