@@ -34,7 +34,7 @@ async def test_post_success():
             return_value=mock_inference,
         ):
             service = InferenceService()
-            identifier = await service.post(input=input_data, return_column="id")
+            identifier = await service.post(data=input_data, return_column="id")
             assert identifier == "unique_id"
 
 
@@ -65,5 +65,5 @@ async def test_post_failure():
         ):
             service = InferenceService()
             with pytest.raises(Exception) as excinfo:
-                await service.post(input=input_data, return_column="id")
+                await service.post(data=input_data, return_column="id")
             assert str(excinfo.value) == "DB Insert Failed"

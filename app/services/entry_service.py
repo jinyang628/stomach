@@ -13,7 +13,7 @@ from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
-from app.models.types import EntryDbInput, InferenceInput
+from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
 from app.stores.entry import EntryObjectStore
 
 log = logging.getLogger(__name__)
@@ -28,10 +28,10 @@ class EntryService:
     ###
     ### DB logic
     ###
-    async def post(self, input: list[EntryDbInput], return_column: str) -> list[Any]:
+    async def post(self, data: list[EntryDbInput], return_column: str) -> list[Any]:
         store = EntryObjectStore()
         entry_lst: list[Entry] = []
-        for element in input:
+        for element in data:
             entry = Entry.local(api_key=element.api_key, url=element.url)
             entry_lst.append(entry)
         identifier_lst: list[Any] = store.insert(
@@ -43,7 +43,9 @@ class EntryService:
     ### API logic
     ###
     async def infer(self, data: InferenceInput) -> dict[str, Any]:
-        """Sends a POST request to the Brain for inference and returns a dictionary containing the results of the respective tasks chosen. If the request fails, an HTTPException is raised.
+        """Sends a POST request to the Brain for inference and 
+        returns a dictionary containing the results of the respective 
+        tasks chosen. If the request fails, an HTTPException is raised.
 
         Args:
             entry (dict[str, str]): The entry to be sent for inference
@@ -59,8 +61,8 @@ class EntryService:
 
             data_dict = data.model_dump()
 
-            # Make a POST request to the Brain repo, set a generous timeout of 20 seconds
-            async with httpx.AsyncClient(timeout=20.0) as client:
+            # Make a POST request to the Brain repo, set a generous timeout of 60 seconds
+            async with httpx.AsyncClient(timeout=100.0) as client:
                 response = await client.post(url, json=data_dict)
                 if response.status_code != 200:
                     log.error(
@@ -75,13 +77,13 @@ class EntryService:
             log.error(
                 f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}"
             )
-            raise HTTPException(status_code=500, detail=str(req_error))
+            raise HTTPException(status_code=500, detail=str(req_error)) from req_error
         except json.JSONDecodeError as json_error:
             log.error(f"JSON decoding error: {json_error}")
-            raise HTTPException(status_code=500, detail="Invalid JSON response")
+            raise HTTPException(status_code=500, detail="Invalid JSON response") from json_error
         except Exception as e:
             log.error(f"Unexpected error in infer: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     ###
     ### Business logic
@@ -121,22 +123,22 @@ class EntryService:
 
         try:
             json_data: dict[str, any] = json.loads(script_tag.string)
-        except json.JSONDecodeError:
-            raise ValueError("Invalid JSON in script_tag")
+        except json.JSONDecodeError as e:
+            raise ValueError("Invalid JSON in script_tag") from e
 
         props: dict[str, any] = json_data.get("props")
         if not props:
             raise ValueError("No props found in json_data")
 
-        pageProps: dict[str, any] = props.get("pageProps")
-        if not pageProps:
+        page_props: dict[str, any] = props.get("pageProps")
+        if not page_props:
             raise ValueError("No pageProps found in props")
 
-        serverResponse: dict[str, any] = pageProps.get("serverResponse")
-        if not serverResponse:
+        server_response: dict[str, any] = page_props.get("serverResponse")
+        if not server_response:
             raise ValueError("No serverResponse found in pageProps")
 
-        data: dict[str, any] = serverResponse.get("data")
+        data: dict[str, any] = server_response.get("data")
         if not data:
             raise ValueError("No data found in serverResponse")
 
@@ -182,8 +184,8 @@ class EntryService:
 
             try:
                 role_enum: ShareGpt = ShareGpt(role)
-            except ValueError:
-                raise ValueError("Invalid role found in author")
+            except ValueError as e:
+                raise ValueError("Invalid role found in author") from e
 
             message: Message = None
             if role_enum == ShareGpt.USER:
@@ -212,3 +214,14 @@ class EntryService:
         # print(pretty_json)
 
         return conversation.jsonify()
+
+    def prepare_inference_db_input(
+        self, entry_id: str, conversation: dict[str, str], result: dict[str, Any]
+    ) -> InferenceDbInput:
+        """Prepares the input to be stored in the inference table."""
+        return InferenceDbInput(
+            entry_id=entry_id,
+            conversation=json.dumps(conversation),
+            summary=json.dumps(result.get("summary")),
+            practice=result.get("practice"),
+        )

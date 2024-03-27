@@ -4,10 +4,10 @@ from app.stores.inference import InferenceObjectStore
 
 
 class InferenceService:
-    async def post(self, input: list[InferenceDbInput], return_column: str) -> str:
+    async def post(self, data: list[InferenceDbInput], return_column: str) -> str:
         store = InferenceObjectStore()
         inference_lst: list[Inference] = []
-        for element in input:
+        for element in data:
             inference = Inference.local(
                 entry_id=element.entry_id,
                 conversation=element.conversation,

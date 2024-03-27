@@ -23,8 +23,8 @@ class ApiKeyController:
         @router.get("/validate/{api_key}")
         async def validate(api_key: str):
             try:
-                isValidApiKey: bool = service.validate(api_key=api_key)
-                if not isValidApiKey:
+                is_valid_api_key: bool = service.validate(api_key=api_key)
+                if not is_valid_api_key:
                     return JSONResponse(
                         status_code=401, content={"message": "Invalid API Key"}
                     )

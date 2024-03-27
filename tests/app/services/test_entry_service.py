@@ -1,12 +1,13 @@
+import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
-from httpx import RequestError, Response
+from httpx import Response
 
 from app.models.enum.task import Task
 from app.models.stores.entry import Entry
-from app.models.types import InferenceInput
+from app.models.types import InferenceDbInput, InferenceInput
 from app.services.entry_service import EntryService
 
 
@@ -32,7 +33,7 @@ def entry_inputs():
 async def test_post_success(mock_store, entry_inputs):
     expected_entry_ids = ["test_entry_id1", "test_entry_id2"]
     mock_store.return_value.insert.return_value = expected_entry_ids
-    entry_ids = await EntryService().post(input=entry_inputs, return_column="entry_id")
+    entry_ids = await EntryService().post(data=entry_inputs, return_column="entry_id")
 
     assert entry_ids == expected_entry_ids
     mock_store.return_value.insert.assert_called_once()
@@ -52,7 +53,7 @@ async def test_post_handles_exceptions(mock_store, entry_inputs):
     mock_store.return_value.insert.side_effect = Exception("Test Exception")
 
     with pytest.raises(Exception) as excinfo:
-        await EntryService().post(input=entry_inputs, return_column="id")
+        await EntryService().post(data=entry_inputs, return_column="id")
 
     assert "Test Exception" in str(excinfo.value)
 
@@ -116,3 +117,56 @@ VALIDATE_TASKS_INVALID_DATA = [("invalid_task"), ("summarise, practice")]
 def test_validate_tasks_invalid(tasks):
     with pytest.raises(HTTPException):
         EntryService().validate_tasks(tasks)
+
+
+PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
+    (
+        "test_entry_id",
+        {"message": "Hello"},
+        {"summary": {"key": "value"}, "practice": "practice_code"},
+    ),
+    (
+        "test_entry_id",
+        {"message": "Hello"},
+        {"summary": None, "practice": None},
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "entry_id, conversation, result", PREPARE_INFERENCE_DB_INPUT_VALID_DATA
+)
+def test_prepare_inference_db_input(entry_id, conversation, result):
+    inference_db_input = EntryService().prepare_inference_db_input(
+        entry_id=entry_id, conversation=conversation, result=result
+    )
+
+    assert isinstance(inference_db_input, InferenceDbInput)
+    assert inference_db_input.entry_id == entry_id
+    assert inference_db_input.conversation == json.dumps(conversation)
+    assert inference_db_input.summary == json.dumps(result["summary"])
+    assert inference_db_input.practice == result["practice"]
+
+
+PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
+    (
+        123,
+        {"message": "Hello"},
+        {"summary": {"key": "value"}, "practice": "practice_code"},
+    ),
+    (
+        "test_entry_id",
+        {"message": "Hello"},
+        123,
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "entry_id, conversation, result", PREPARE_INFERENCE_DB_INPUT_INVALID_DATA
+)
+def test_prepare_inference_db_input_invalid(entry_id, conversation, result):
+    with pytest.raises(Exception):
+        EntryService().prepare_inference_db_input(
+            entry_id=entry_id, conversation=conversation, result=result
+        )
