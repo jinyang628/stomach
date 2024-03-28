@@ -223,5 +223,5 @@ class EntryService:
             entry_id=entry_id,
             conversation=json.dumps(conversation),
             summary=json.dumps(result.get("summary")),
-            practice=result.get("practice"),
+            practice=json.dumps(result.get("practice")),
         )
