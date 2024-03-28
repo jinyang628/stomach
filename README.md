@@ -38,7 +38,7 @@ uvicorn app.main:app --reload --port 8080
 ```
 turso auth logout
 turso auth login (make sure u are on the right browser with the right account)
-turso org switch jinyang628
+turso org switch ****YOUR USERNAME****
 turso db list (u should see the correct db)
 ```
 
