@@ -43,8 +43,8 @@ class EntryService:
     ### API logic
     ###
     async def infer(self, data: InferenceInput) -> dict[str, Any]:
-        """Sends a POST request to the Brain for inference and 
-        returns a dictionary containing the results of the respective 
+        """Sends a POST request to the Brain for inference and
+        returns a dictionary containing the results of the respective
         tasks chosen. If the request fails, an HTTPException is raised.
 
         Args:
@@ -80,7 +80,9 @@ class EntryService:
             raise HTTPException(status_code=500, detail=str(req_error)) from req_error
         except json.JSONDecodeError as json_error:
             log.error(f"JSON decoding error: {json_error}")
-            raise HTTPException(status_code=500, detail="Invalid JSON response") from json_error
+            raise HTTPException(
+                status_code=500, detail="Invalid JSON response"
+            ) from json_error
         except Exception as e:
             log.error(f"Unexpected error in infer: {e}")
             raise HTTPException(status_code=500, detail=str(e)) from e
@@ -163,13 +165,27 @@ class EntryService:
             if not content:
                 raise ValueError("No content found in message")
 
-            parts: list[str] = content.get("parts")
-            if not parts:
-                raise ValueError("No parts found in content")
-            if len(parts) == 0:
-                raise ValueError("Empty parts found in content")
-
-            individual_response: str = parts[0]
+            desired_content: str = ""
+            if content.get("content_type") == "text":
+                parts: list[str] = content.get("parts")
+                if not parts:
+                    raise ValueError(
+                        "No parts found in content when content_type is text"
+                    )
+                if len(parts) == 0:
+                    raise ValueError("Empty parts found in content")
+                # TODO: IS THIS ALWAYS TRUE?
+                desired_content = parts[0]
+            elif content.get("content_type") == "code":
+                # Code messages are what ChatGPT runs on its own server, not important for the conversation
+                continue
+            elif content.get("content_type") == "execution_output":
+                # Execution Output messages are what ChatGPT runs on its own server, not important for the conversation
+                continue
+            else:
+                raise ValueError(
+                    "Unforseen content_type found in content. Please review the extraction strategy."
+                )
 
             author: dict[str, any] = message.get("author")
             if not author:
@@ -190,13 +206,13 @@ class EntryService:
             message: Message = None
             if role_enum == ShareGpt.USER:
                 message = UserMessage(
-                    content=individual_response,
+                    content=desired_content,
                     prev_message=curr_message,
                     next_message=None,
                 )
             elif role_enum == ShareGpt.ASSISTANT:
                 message = AssistantMessage(
-                    content=individual_response,
+                    content=desired_content,
                     prev_message=curr_message,
                     next_message=None,
                 )

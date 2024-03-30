@@ -145,7 +145,7 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
     assert inference_db_input.entry_id == entry_id
     assert inference_db_input.conversation == json.dumps(conversation)
     assert inference_db_input.summary == json.dumps(result["summary"])
-    assert inference_db_input.practice == result["practice"]
+    assert inference_db_input.practice == json.dumps(result["practice"])
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
