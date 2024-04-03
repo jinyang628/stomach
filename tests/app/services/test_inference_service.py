@@ -21,7 +21,8 @@ async def test_post_success():
             entry_id="123",
             conversation="Test conversation",
             summary="Test summary",
-            practice="Test practice",
+            question="Test question",
+            answer="Test answer"
         )
     ]
 
@@ -51,7 +52,8 @@ async def test_post_failure():
             entry_id="123",
             conversation="Test conversation",
             summary="Test summary",
-            practice="Test practice",
+            question="Test question",
+            answer="Test answer"
         )
     ]
 

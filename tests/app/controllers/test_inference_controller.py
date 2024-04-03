@@ -16,7 +16,8 @@ async def test_post_success():
         entry_id="shawn",
         conversation="Should i use the upper case or lower case for the type hint",
         summary="You should use lower case",
-        practice=None,
+        question="test question",
+        answer="test answer",
     )
 
     with patch(
@@ -37,7 +38,8 @@ async def test_post_error():
         entry_id="shawn",
         conversation="Should i use the upper case or lower case for the type hint",
         summary="You should use lower case",
-        practice=None,
+        question="test question",
+        answer="test answer",
     )
 
     with patch(

@@ -34,7 +34,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8080
 ```
 
-### Switch to turso
+### Install turso CLI
+
+https://docs.turso.tech/quickstart
+
+### Login to turso
 ```
 turso auth logout
 turso auth login (make sure u are on the right browser with the right account)

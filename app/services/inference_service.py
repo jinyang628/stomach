@@ -12,7 +12,8 @@ class InferenceService:
                 entry_id=element.entry_id,
                 conversation=element.conversation,
                 summary=element.summary,
-                practice=element.practice,
+                question=element.question,
+                answer=element.answer
             )
             inference_lst.append(inference)
         identifier: str = store.insert(

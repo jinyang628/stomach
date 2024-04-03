@@ -123,12 +123,12 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
     (
         "test_entry_id",
         {"message": "Hello"},
-        {"summary": {"key": "value"}, "practice": "practice_code"},
+        {"summary": {"key": "value"}, "question": "question_code", "answer": "answer_code"},
     ),
     (
         "test_entry_id",
         {"message": "Hello"},
-        {"summary": None, "practice": None},
+        {"summary": None, "question": None, "answer": None},
     ),
 ]
 
@@ -145,14 +145,15 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
     assert inference_db_input.entry_id == entry_id
     assert inference_db_input.conversation == json.dumps(conversation)
     assert inference_db_input.summary == json.dumps(result["summary"])
-    assert inference_db_input.practice == json.dumps(result["practice"])
+    assert inference_db_input.question == json.dumps(result["question"])
+    assert inference_db_input.answer == json.dumps(result["answer"])
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
     (
         123,
         {"message": "Hello"},
-        {"summary": {"key": "value"}, "practice": "practice_code"},
+        {"summary": {"key": "value"}, "question": "question_code", "answer": "answer_code"}
     ),
     (
         "test_entry_id",

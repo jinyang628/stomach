@@ -17,7 +17,8 @@ def test_insert_get_update_delete():
             }
         ),
         summary="test_summary",
-        practice=None,
+        question=None,
+        answer=None
     )
     object_2 = Inference.local(
         entry_id="test_entry_id_2",
@@ -29,7 +30,8 @@ def test_insert_get_update_delete():
             }
         ),
         summary=None,
-        practice="test_exercise",
+        question="test_question",
+        answer="test_answer"
     )
     inserted_ids: List[int] = store.insert(inferences=[object_1, object_2])
     assert len(inserted_ids) == 2
@@ -43,7 +45,8 @@ def test_insert_get_update_delete():
     assert obj_1.entry_id == object_1.entry_id
     assert obj_1.conversation == object_1.conversation
     assert obj_1.summary == object_1.summary
-    assert obj_1.practice == object_1.practice
+    assert obj_1.question == object_1.question
+    assert obj_1.answer == object_1.answer
 
     obj_2 = objs[1]
     assert obj_2.id == inserted_ids[1]
@@ -51,7 +54,8 @@ def test_insert_get_update_delete():
     assert obj_2.entry_id == object_2.entry_id
     assert obj_2.conversation == object_2.conversation
     assert obj_2.summary == object_2.summary
-    assert obj_2.practice == object_2.practice
+    assert obj_2.question == object_2.question
+    assert obj_2.answer == object_2.answer
 
     obj_1.summary = "test_summary_updated"
     success = store.update(inferences=[obj_1])
