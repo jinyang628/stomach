@@ -6,7 +6,13 @@ from app.models.stores.inference import INFERENCE_VERSION, Inference
 from app.models.utils import sql_value_to_typed_value
 
 INFERENCE_LOCAL_VALID_DATA = [
-    ("entry_id_1", "Test conversation 1", "Test summary 1", "Test question 1", "Test answer 1"),
+    (
+        "entry_id_1",
+        "Test conversation 1",
+        "Test summary 1",
+        "Test question 1",
+        "Test answer 1",
+    ),
     ("entry_id_2", "Test conversation 2", None, None, None),
 ]
 

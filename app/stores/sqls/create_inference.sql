@@ -28,13 +28,6 @@ CREATE TRIGGER inference_insert
 AFTER
 INSERT
     ON inference FOR EACH ROW BEGIN 
-INSERT INTO 
-    log (
-        table_name
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'inference', NEW.id,
@@ -56,13 +49,6 @@ CREATE TRIGGER inference_update
 AFTER
 UPDATE
     ON inference FOR EACH ROW BEGIN
-INSERT INTO 
-    log (
-        table_name
-        row_id,
-        data,
-        change_type
-    )
 VALUES 
     (
         'inference', NEW.id,
@@ -90,13 +76,6 @@ END;
 CREATE TRIGGER inference_delete
 AFTER
     DELETE ON inference FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'inference', OLD.id,

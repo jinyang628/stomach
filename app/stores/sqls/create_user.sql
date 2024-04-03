@@ -14,26 +14,21 @@ CREATE TABLE user (
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     api_key TEXT NOT NULL,
+    usage INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UNIQUE(version, name, email, api_key),
     CHECK(version <> ''),
     CHECK(name <> ''),
     CHECK(email <> ''),
-    CHECK(api_key <> ''),
+    CHECK(api_key <> '')
 );
+
 
 CREATE TRIGGER user_insert
 AFTER
 INSERT
     ON user FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'user',
@@ -54,13 +49,6 @@ CREATE TRIGGER user_update
 AFTER
 UPDATE
     ON user FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'user',
@@ -69,7 +57,8 @@ VALUES
             'version', NEW.version,
             'name', NEW.name,
             'email', NEW.email,
-            'api_key', NEW.api_key
+            'api_key', NEW.api_key,
+            'usage', NEW.usage
         ),
         'UPDATE'
     );
@@ -88,13 +77,6 @@ CREATE TRIGGER user_delete
 AFTER
 DELETE
     ON user FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'user',
@@ -103,7 +85,8 @@ VALUES
             'version', OLD.version,
             'name', OLD.name,
             'email', OLD.email,
-            'api_key', OLD.api_key
+            'api_key', OLD.api_key,
+            'usage', OLD.usage
         ),
         'DELETE'
     );

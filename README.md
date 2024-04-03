@@ -1,6 +1,7 @@
 ## Getting Started!
 
-### Setup db
+## Set up .env
+Make a copy of the `.env.example` file and name it as `.env` in the same directory. Remember to fill in the necessary fields
 
 ### Create a virtual environment if you have yet to.
 

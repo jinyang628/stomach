@@ -9,7 +9,7 @@ DROP TRIGGER IF EXISTS entry_update;
 DROP TRIGGER IF EXISTS entry_delete;
 
 CREATE TABLE entry (
-    id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     version INTEGER NOT NULL,
     entry_id TEXT NOT NULL,
     api_key TEXT NOT NULL, 
@@ -27,13 +27,6 @@ CREATE TRIGGER entry_insert
 AFTER
 INSERT
     ON entry FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'entry',
@@ -54,13 +47,6 @@ CREATE TRIGGER entry_update
 AFTER
 UPDATE
     ON entry FOR EACH ROW BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'entry',
@@ -88,13 +74,6 @@ CREATE TRIGGER entry_delete
 AFTER
     DELETE ON entry FOR EACH ROW 
     BEGIN
-INSERT INTO
-    log (
-        table_name,
-        row_id,
-        data,
-        change_type
-    )
 VALUES
     (
         'entry',

@@ -123,7 +123,11 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
     (
         "test_entry_id",
         {"message": "Hello"},
-        {"summary": {"key": "value"}, "question": "question_code", "answer": "answer_code"},
+        {
+            "summary": {"key": "value"},
+            "question": "question_code",
+            "answer": "answer_code",
+        },
     ),
     (
         "test_entry_id",
@@ -153,7 +157,11 @@ PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
     (
         123,
         {"message": "Hello"},
-        {"summary": {"key": "value"}, "question": "question_code", "answer": "answer_code"}
+        {
+            "summary": {"key": "value"},
+            "question": "question_code",
+            "answer": "answer_code",
+        },
     ),
     (
         "test_entry_id",

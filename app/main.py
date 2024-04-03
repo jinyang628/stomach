@@ -1,6 +1,5 @@
 import os
 
-from dotenv import dotenv_values
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,13 +7,15 @@ from app.controllers.api_key_controller import api_key_controller_router
 from app.controllers.entry_controller import entry_controller_router
 
 # Check operating system
-if os.name == 'posix':
+if os.name == "posix":
     # macOS, Linux, or Unix
     from dotenv import dotenv_values
+
     config = dotenv_values(".env")
 else:
     # Windows or Windows WSL
     from dotenv import load_dotenv
+
     load_dotenv(".env")
 
 app = FastAPI()

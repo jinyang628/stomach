@@ -22,7 +22,7 @@ async def test_post_success():
             conversation="Test conversation",
             summary="Test summary",
             question="Test question",
-            answer="Test answer"
+            answer="Test answer",
         )
     ]
 
@@ -53,7 +53,7 @@ async def test_post_failure():
             conversation="Test conversation",
             summary="Test summary",
             question="Test question",
-            answer="Test answer"
+            answer="Test answer",
         )
     ]
 

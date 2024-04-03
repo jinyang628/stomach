@@ -18,7 +18,7 @@ def test_insert_get_update_delete():
         ),
         summary="test_summary",
         question=None,
-        answer=None
+        answer=None,
     )
     object_2 = Inference.local(
         entry_id="test_entry_id_2",
@@ -31,7 +31,7 @@ def test_insert_get_update_delete():
         ),
         summary=None,
         question="test_question",
-        answer="test_answer"
+        answer="test_answer",
     )
     inserted_ids: List[int] = store.insert(inferences=[object_1, object_2])
     assert len(inserted_ids) == 2

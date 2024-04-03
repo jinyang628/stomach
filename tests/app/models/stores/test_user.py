@@ -7,34 +7,45 @@ from app.models.utils import sql_value_to_typed_value
 
 # Data for testing the local method
 USER_LOCAL_VALID_DATA = [
-    ("email@example.com", "api_key_1"),
-    ("another_email@example.com", "api_key_2"),
+    ("jinyang", "email@example.com", "api_key_1"),
+    ("shawn", "another_email@example.com", "api_key_2"),
 ]
 
 
-@pytest.mark.parametrize("email, api_key", USER_LOCAL_VALID_DATA)
-def test_user_local_valid(email, api_key):
-    user = User.local(email, api_key)
+@pytest.mark.parametrize("name, email, api_key", USER_LOCAL_VALID_DATA)
+def test_user_local_valid(name, email, api_key):
+    user = User.local(name=name, email=email, api_key=api_key)
     assert user.version == USER_VERSION
+    assert user.name == name
     assert user.email == email
     assert user.api_key == api_key
 
 
 USER_LOCAL_INVALID_DATA = [
-    (123, "api_key"),  # Invalid email
-    ("email@example.com", 123),  # Empty API key
+    (123, "jinyang@gmail.com", "api_key"),  # Invalid name
+    ("jinyang", 123, "api_key"),  # Invalid email
+    ("jinyang", "email@example.com", 123),  # Empty API key
 ]
 
 
-@pytest.mark.parametrize("email, api_key", USER_LOCAL_INVALID_DATA)
-def test_user_local_invalid(email, api_key):
+@pytest.mark.parametrize("name, email, api_key", USER_LOCAL_INVALID_DATA)
+def test_user_local_invalid(name, email, api_key):
     with pytest.raises(ValueError):
-        User.local(email, api_key)
+        User.local(name=name, email=email, api_key=api_key)
 
 
 # Data for testing the remote method
 USER_REMOTE_VALID_DATA = [
-    {"id": "1", "version": "1", "email": "email1@example.com", "api_key": "api_key_1"}
+    {
+        "id": "1",
+        "version": "1",
+        "name": "jinyang",
+        "email": "email1@example.com",
+        "api_key": "api_key_1",
+        "usage": "0",
+        "created_at": "2021-01-01 00:00:00",
+        "updated_at": "2021-01-01 00:00:00",
+    },
 ]
 
 
@@ -68,6 +79,7 @@ def test_user_remote_valid(kwargs):
 USER_REMOTE_INVALID_DATA = [
     {
         "id": "not_an_int",
+        "name": "jinyang",
         "version": "1",
         "email": "email@example.com",
         "api_key": "api_key",
