@@ -56,7 +56,8 @@ class EntryController:
 
                 jsonified_conversation: dict[str, str] = await conversation_task
                 inference_input = InferenceInput(
-                    conversation=jsonified_conversation, tasks=input.tasks
+                    conversation=jsonified_conversation, 
+                    tasks=input.tasks
                 )
 
                 try:
@@ -70,8 +71,8 @@ class EntryController:
 
                 entry_id: str = await entry_id_task
 
-                inference_db_input: InferenceDbInput = (
-                    service.prepare_inference_db_input(
+                inference_db_input: list[InferenceDbInput] = (
+                    service.prepare_inference_db_input_lst(
                         entry_id=entry_id,
                         conversation=jsonified_conversation,
                         result=result,

@@ -15,9 +15,9 @@ class InferenceController:
         self.router = APIRouter()
         self.service = InferenceService()
 
-    async def post(self, data: InferenceDbInput) -> str:
+    async def post(self, data: list[InferenceDbInput]) -> str:
         try:
-            id: str = await self.service.post(data=[data], return_column="id")
+            id: str = await self.service.post(data=data, return_column="id")
             return id
         except Exception as e:
             log.error(

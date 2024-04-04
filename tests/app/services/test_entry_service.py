@@ -125,14 +125,22 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
         {"message": "Hello"},
         {
             "summary": {"key": "value"},
-            "question": "question_code",
-            "answer": "answer_code",
+            "practice": [
+                {
+                    "language": "python",
+                    "question": "question_code",
+                    "answer": "answer_code",
+                }
+            ]
         },
     ),
     (
         "test_entry_id",
         {"message": "Hello"},
-        {"summary": None, "question": None, "answer": None},
+        {
+            "summary": {"key": "value"},
+            "practice": None
+        },
     ),
 ]
 
@@ -141,16 +149,19 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
     "entry_id, conversation, result", PREPARE_INFERENCE_DB_INPUT_VALID_DATA
 )
 def test_prepare_inference_db_input(entry_id, conversation, result):
-    inference_db_input = EntryService().prepare_inference_db_input(
+    inference_db_input_lst = EntryService().prepare_inference_db_input_lst(
         entry_id=entry_id, conversation=conversation, result=result
     )
 
-    assert isinstance(inference_db_input, InferenceDbInput)
-    assert inference_db_input.entry_id == entry_id
-    assert inference_db_input.conversation == json.dumps(conversation)
-    assert inference_db_input.summary == json.dumps(result["summary"])
-    assert inference_db_input.question == json.dumps(result["question"])
-    assert inference_db_input.answer == json.dumps(result["answer"])
+    for i in range(len(inference_db_input_lst)):
+        assert isinstance(inference_db_input_lst[i], InferenceDbInput)
+        assert inference_db_input_lst[i].entry_id == entry_id
+        assert inference_db_input_lst[i].conversation == json.dumps(conversation)
+        assert inference_db_input_lst[i].summary == json.dumps(result.get("summary"))
+        if result.get("practice") is None:
+            continue
+        assert inference_db_input_lst[i].question == json.dumps(result.get("practice")[i].get("question"))
+        assert inference_db_input_lst[i].answer == json.dumps(result.get("practice")[i].get("answer"))
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
@@ -158,9 +169,13 @@ PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
         123,
         {"message": "Hello"},
         {
-            "summary": {"key": "value"},
-            "question": "question_code",
-            "answer": "answer_code",
+            "practice": [
+                {
+                    "language": "python", 
+                    "question": "question_code", 
+                    "answer": "answer_code"
+                }
+            ],
         },
     ),
     (
@@ -176,6 +191,6 @@ PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
 )
 def test_prepare_inference_db_input_invalid(entry_id, conversation, result):
     with pytest.raises(Exception):
-        EntryService().prepare_inference_db_input(
+        EntryService().prepare_inference_db_input_lst(
             entry_id=entry_id, conversation=conversation, result=result
         )

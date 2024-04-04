@@ -231,14 +231,31 @@ class EntryService:
 
         return conversation.jsonify()
 
-    def prepare_inference_db_input(
+    def prepare_inference_db_input_lst(
         self, entry_id: str, conversation: dict[str, str], result: dict[str, Any]
-    ) -> InferenceDbInput:
+    ) -> list[InferenceDbInput]:
         """Prepares the input to be stored in the inference table."""
-        return InferenceDbInput(
-            entry_id=entry_id,
-            conversation=json.dumps(conversation),
-            summary=json.dumps(result.get("summary")),
-            question=json.dumps(result.get("question")),
-            answer=json.dumps(result.get("answer")),
-        )
+        practice_lst: list[dict[str, Any]] = result.get("practice")
+        if practice_lst:
+            practice_length: int = len(practice_lst)
+            inference_db_input_lst: list[InferenceDbInput] = []
+            for i in range(practice_length):
+                inference_db_input_lst.append(
+                    InferenceDbInput(
+                        entry_id=entry_id,
+                        conversation=json.dumps(conversation),
+                        summary=json.dumps(result.get("summary")),
+                        question=json.dumps(result.get("practice")[i].get("question")),
+                        answer=json.dumps(result.get("practice")[i].get("answer")),
+                    )
+                )
+            return inference_db_input_lst
+        return [
+            InferenceDbInput(
+                entry_id=entry_id,
+                conversation=json.dumps(conversation),
+                summary=json.dumps(result.get("summary")),
+                question=None,
+                answer=None,
+            )
+        ]

@@ -10,23 +10,24 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    obj_store = ObjectStore(table_name="entry")
+    obj_store = ObjectStore(table_name="inference")
     obj_store.execute(
         sql="""
-CREATE TABLE entry (
+CREATE TABLE inference (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     version INTEGER NOT NULL,
     entry_id TEXT NOT NULL,
-    api_key TEXT NOT NULL, 
-    url TEXT NOT NULL,  
+    conversation TEXT NOT NULL,
+    summary TEXT,
+    question TEXT,
+    answer TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, api_key, url),
+    UNIQUE(version, entry_id, conversation, summary, question, answer),
     CHECK(version <> ''),
     CHECK(entry_id <> ''),
-    CHECK(api_key <> ''),
-    CHECK(url <> '')
-)
+    CHECK(conversation <> '')
+);
 """
     )
 

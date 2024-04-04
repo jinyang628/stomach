@@ -18,7 +18,7 @@ CREATE TABLE inference (
     answer TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, conversation),
+    UNIQUE(version, entry_id, conversation, summary, question, answer),
     CHECK(version <> ''),
     CHECK(entry_id <> ''),
     CHECK(conversation <> '')
