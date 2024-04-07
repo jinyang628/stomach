@@ -45,15 +45,16 @@ class UserObjectStore:
         if len(ids) == 0:
             return False
         return True
-    
+
     def increment_usage(self, api_key: str, usage_counter: int) -> bool:
         rows = self._store.get_rows_by_matching_condition(
-            column_to_match="api_key",
-            matching_value=api_key
+            column_to_match="api_key", matching_value=api_key
         )
         if not rows:
-            raise Exception(f"API call is made even though the API key is invalid: {api_key}")
+            raise Exception(
+                f"API call is made even though the API key is invalid: {api_key}"
+            )
         user_dict = self._store.convert_row_to_dict(rows[0], User)
         user = User.remote(**user_dict)
         user.usage += usage_counter
-        return self.update(users=[user]) 
+        return self.update(users=[user])

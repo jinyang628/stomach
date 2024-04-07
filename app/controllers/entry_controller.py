@@ -39,8 +39,7 @@ class EntryController:
                             data=[input], return_column="entry_id"
                         )
                         self.user_controller.increment_usage(
-                            api_key=input.api_key,
-                            tasks=tasks
+                            api_key=input.api_key, tasks=tasks
                         )
                         return entry_ids[0]
                     except Exception as e:
@@ -55,14 +54,14 @@ class EntryController:
                         await service.extract_url_content(url=input.url)
                     )
                     return jsonified_conversation
+
                 tasks: list[Task] = service.validate_tasks(input.tasks)
                 entry_id_task = asyncio.create_task(post(tasks=tasks))
                 conversation_task = asyncio.create_task(extract_url_content())
-                
+
                 jsonified_conversation: dict[str, str] = await conversation_task
                 inference_input = InferenceInput(
-                    conversation=jsonified_conversation, 
-                    tasks=input.tasks
+                    conversation=jsonified_conversation, tasks=input.tasks
                 )
 
                 try:

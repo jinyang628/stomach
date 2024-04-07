@@ -16,6 +16,7 @@ def mock_store():
 def api_key_input():
     return "test_api_key"
 
+
 @pytest.fixture
 def tasks_input():
     return [Task.SUMMARISE, Task.PRACTICE]
@@ -43,10 +44,13 @@ def test_validate_api_key_handles_exceptions(mock_store, api_key_input):
 
     assert "Test Exception" in str(excinfo.value)
 
+
 def test_increment_usage_successful(mock_store, api_key_input, tasks_input):
     mock_store.return_value.increment_usage.return_value = True
-    is_incremented = UserService().increment_usage(api_key=api_key_input, tasks=tasks_input)
-    
+    is_incremented = UserService().increment_usage(
+        api_key=api_key_input, tasks=tasks_input
+    )
+
     assert is_incremented is True
     args, kwargs = mock_store.return_value.increment_usage.call_args
     assert kwargs["api_key"] == api_key_input

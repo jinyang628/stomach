@@ -1,7 +1,7 @@
-from fastapi import HTTPException
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from app.controllers.user_controller import UserController
@@ -11,9 +11,11 @@ from app.services.user_service import UserService
 
 client = TestClient(app)
 
+
 @pytest.fixture
 def user_service_mock():
     return MagicMock(spec=UserService)
+
 
 @pytest.fixture
 def user_controller(user_service_mock):
@@ -21,8 +23,11 @@ def user_controller(user_service_mock):
     controller.service = user_service_mock
     return controller
 
+
 def test_validate_api_key_successful():
-    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
+    with patch(
+        "app.services.user_service.UserService.validate_api_key"
+    ) as mock_validate:
         mock_validate.return_value = True
         response = client.get("/api/api_keys/validate/test_api_key")
         assert response.status_code == 200
@@ -30,7 +35,9 @@ def test_validate_api_key_successful():
 
 
 def test_validate_api_key_unsuccessful():
-    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
+    with patch(
+        "app.services.user_service.UserService.validate_api_key"
+    ) as mock_validate:
         mock_validate.return_value = False
         response = client.get("/api/api_keys/validate/invalid_api_key")
         assert response.status_code == 401
@@ -38,11 +45,14 @@ def test_validate_api_key_unsuccessful():
 
 
 def test_validate_api_key_exception():
-    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
+    with patch(
+        "app.services.user_service.UserService.validate_api_key"
+    ) as mock_validate:
         mock_validate.side_effect = Exception("Test Exception")
         response = client.get("/api/api_keys/validate/api_key")
         assert response.status_code == 500
         assert response.json() == {"Error": "Test Exception"}
+
 
 def test_increment_usage_successful(user_controller, user_service_mock):
     # Arrange
@@ -56,6 +66,7 @@ def test_increment_usage_successful(user_controller, user_service_mock):
     # Assert
     user_service_mock.increment_usage.assert_called_with(api_key=api_key, tasks=tasks)
     assert result == True
+
 
 def test_increment_usage_failure(user_controller, user_service_mock):
     # Arrange

@@ -36,10 +36,12 @@ class UserController:
             except Exception as e:
                 log.error(f"Error: {str(e)} in UserController#setup_routes#validate")
                 return JSONResponse(status_code=500, content={"Error": str(e)})
-            
+
     def increment_usage(self, api_key: str, tasks: list[Task]) -> bool:
         try:
-            is_usage_incremented: bool = self.service.increment_usage(api_key=api_key, tasks=tasks)
+            is_usage_incremented: bool = self.service.increment_usage(
+                api_key=api_key, tasks=tasks
+            )
             if not is_usage_incremented:
                 log.error(f"Error incrementing usage for api_key: {api_key}")
                 raise HTTPException(status_code=500, detail=str(e)) from e

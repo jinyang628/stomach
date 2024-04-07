@@ -297,7 +297,7 @@ class ObjectStore:
     ####
     #### COMMON
     ####
-    
+
     def get_rows_by_matching_condition(
         self, column_to_match: str, matching_value: Any
     ) -> List[Any]:
@@ -370,8 +370,7 @@ class ObjectStore:
     ####
     #### CONVERSION
     ####
-    
-    
+
     def get_model_columns(self, model: BaseModel) -> list:
         """Extract column names from a Pydantic model."""
         return list(model.model_fields.keys())

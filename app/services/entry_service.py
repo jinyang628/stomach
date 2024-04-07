@@ -37,7 +37,6 @@ class EntryService:
         identifier_lst: list[Any] = entry_store.insert(
             entries=entry_lst, return_column=return_column
         )
-        
 
         return identifier_lst
 
