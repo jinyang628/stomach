@@ -29,14 +29,15 @@ class EntryService:
     ### DB logic
     ###
     async def post(self, data: list[EntryDbInput], return_column: str) -> list[Any]:
-        store = EntryObjectStore()
+        entry_store = EntryObjectStore()
         entry_lst: list[Entry] = []
         for element in data:
             entry = Entry.local(api_key=element.api_key, url=element.url)
             entry_lst.append(entry)
-        identifier_lst: list[Any] = store.insert(
+        identifier_lst: list[Any] = entry_store.insert(
             entries=entry_lst, return_column=return_column
         )
+
         return identifier_lst
 
     ###
@@ -91,8 +92,8 @@ class EntryService:
     ### Business logic
     ###
 
-    def validate_tasks(self, tasks: list[str]) -> None:
-        """Defensively validates task_str is part of enum value (even though we still have to send it as a string through the API call)
+    def validate_tasks(self, tasks: list[str]) -> list[Task]:
+        """Validates task_str is part of enum value
 
         Args:
             tasks (list[str]): The values of the tasks which are sent from Fingers
@@ -100,9 +101,12 @@ class EntryService:
         Raises:
             HTTPException: If the task_str is not part of the enum value
         """
+        converted_tasks: list[Task] = []
         for task_str in tasks:
             if task_str not in Task._value2member_map_:
                 raise HTTPException(status_code=400, detail=f"Invalid task: {task_str}")
+            converted_tasks.append(Task(task_str))
+        return converted_tasks
 
     async def extract_url_content(self, url: str) -> dict[str, str]:
         """Extracts the title and conversation messages from the ShareGPT url provided.

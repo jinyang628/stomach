@@ -3,8 +3,8 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.controllers.api_key_controller import api_key_controller_router
 from app.controllers.entry_controller import entry_controller_router
+from app.controllers.user_controller import api_key_controller_router
 
 # Check operating system
 if os.name == "posix":

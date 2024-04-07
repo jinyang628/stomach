@@ -1,9 +1,10 @@
 import logging
 import os
 from datetime import datetime
-from typing import List
+from typing import Any, List
 
 import libsql_client
+from pydantic import BaseModel
 
 from app.connectors.turso import TursoConnector
 
@@ -297,9 +298,34 @@ class ObjectStore:
     #### COMMON
     ####
 
+    def get_rows_by_matching_condition(
+        self, column_to_match: str, matching_value: Any
+    ) -> List[Any]:
+        """
+        Get all rows where column_to_match equals matching_value.
+
+        Args:
+            column_to_match (str): The column to amtch against.
+            matching_value (Any): The value to match in column_to_match.
+
+        Returns:
+            List[Any]: The desired list of rows/objects which the table stores
+        """
+        sql = f"""SELECT *
+                    FROM {self._table_name}
+                    WHERE {column_to_match} = {self._value_to_sql_value(matching_value)}"""
+        logging.debug(sql)
+        try:
+            statement = libsql_client.Statement(sql=sql)
+            rs = self._db_client.execute(statement=statement)
+            return [row for row in rs.rows]
+        except Exception as e:
+            logging.error(f"Error found for statement {statement.sql}: {e}")
+            raise e
+
     def get_values_by_matching_condition(
-        self, column_to_match: str, matching_value: any, column_to_return: str
-    ) -> List[any]:
+        self, column_to_match: str, matching_value: Any, column_to_return: str
+    ) -> List[Any]:
         """
         Get values from column_to_return for rows where column_to_match equals matching_value.
 
@@ -340,3 +366,16 @@ class ObjectStore:
         except Exception as e:
             logging.error(f"Error found for statement {statement.sql}: {e}")
             raise e
+
+    ####
+    #### CONVERSION
+    ####
+
+    def get_model_columns(self, model: BaseModel) -> list:
+        """Extract column names from a Pydantic model."""
+        return list(model.model_fields.keys())
+
+    def convert_row_to_dict(self, row: Any, model: BaseModel) -> dict[str, Any]:
+        """Convert a Row object to a dictionary using column names from the model."""
+        columns = self.get_model_columns(model)
+        return dict(zip(columns, row))

@@ -99,15 +99,15 @@ async def test_infer_general_exception(inference_input):
 
 
 VALIDATE_TASKS_VALID_DATA = [
-    (["summarise"]),
-    (["practice"]),
-    (["practice", "summarise"]),
+    (["summarise"], [Task.SUMMARISE]),
+    (["practice"], [Task.PRACTICE]),
+    (["practice", "summarise"], [Task.PRACTICE, Task.SUMMARISE]),
 ]
 
 
-@pytest.mark.parametrize("tasks", VALIDATE_TASKS_VALID_DATA)
-def test_validate_tasks_valid(tasks):
-    EntryService().validate_tasks(tasks)
+@pytest.mark.parametrize("tasks, expected", VALIDATE_TASKS_VALID_DATA)
+def test_validate_tasks_valid(tasks, expected):
+    EntryService().validate_tasks(tasks) == expected
 
 
 VALIDATE_TASKS_INVALID_DATA = [("invalid_task"), ("summarise, practice")]
@@ -131,16 +131,13 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
                     "question": "question_code",
                     "answer": "answer_code",
                 }
-            ]
+            ],
         },
     ),
     (
         "test_entry_id",
         {"message": "Hello"},
-        {
-            "summary": {"key": "value"},
-            "practice": None
-        },
+        {"summary": {"key": "value"}, "practice": None},
     ),
 ]
 
@@ -160,8 +157,12 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
         assert inference_db_input_lst[i].summary == json.dumps(result.get("summary"))
         if result.get("practice") is None:
             continue
-        assert inference_db_input_lst[i].question == json.dumps(result.get("practice")[i].get("question"))
-        assert inference_db_input_lst[i].answer == json.dumps(result.get("practice")[i].get("answer"))
+        assert inference_db_input_lst[i].question == json.dumps(
+            result.get("practice")[i].get("question")
+        )
+        assert inference_db_input_lst[i].answer == json.dumps(
+            result.get("practice")[i].get("answer")
+        )
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
@@ -171,9 +172,9 @@ PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
         {
             "practice": [
                 {
-                    "language": "python", 
-                    "question": "question_code", 
-                    "answer": "answer_code"
+                    "language": "python",
+                    "question": "question_code",
+                    "answer": "answer_code",
                 }
             ],
         },
