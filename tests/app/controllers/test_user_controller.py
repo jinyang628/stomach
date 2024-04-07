@@ -8,7 +8,7 @@ client = TestClient(app)
 
 
 def test_validate_api_key_successful():
-    with patch("app.services.api_key_service.ApiKeyService.validate") as mock_validate:
+    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
         mock_validate.return_value = True
         response = client.get("/api/api_keys/validate/test_api_key")
         assert response.status_code == 200
@@ -16,7 +16,7 @@ def test_validate_api_key_successful():
 
 
 def test_validate_api_key_unsuccessful():
-    with patch("app.services.api_key_service.ApiKeyService.validate") as mock_validate:
+    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
         mock_validate.return_value = False
         response = client.get("/api/api_keys/validate/invalid_api_key")
         assert response.status_code == 401
@@ -24,7 +24,7 @@ def test_validate_api_key_unsuccessful():
 
 
 def test_validate_api_key_exception():
-    with patch("app.services.api_key_service.ApiKeyService.validate") as mock_validate:
+    with patch("app.services.user_service.UserService.validate_api_key") as mock_validate:
         mock_validate.side_effect = Exception("Test Exception")
         response = client.get("/api/api_keys/validate/api_key")
         assert response.status_code == 500

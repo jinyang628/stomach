@@ -19,7 +19,7 @@ def test_insert_get_update_delete():
     inserted_ids: List[int] = store.insert(users=[object_1, object_2])
     assert len(inserted_ids) == 2
 
-    objs = store.get(ids=inserted_ids)
+    objs = store.get_by_ids(ids=inserted_ids)
     assert len(objs) == 2
 
     obj_1 = objs[0]
@@ -39,7 +39,7 @@ def test_insert_get_update_delete():
     success = store.update(users=[obj_1])
     assert success
 
-    updated_objects = store.get(ids=[obj_1.id])
+    updated_objects = store.get_by_ids(ids=[obj_1.id])
     assert len(updated_objects) == 1
     assert updated_objects[0].email == "siyuan@hotmail.com"
 

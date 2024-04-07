@@ -6,6 +6,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.controllers.inference_controller import InferenceController
+from app.controllers.user_controller import UserController
+from app.models.enum.task import Task
 from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
 from app.services.entry_service import EntryService
 
@@ -18,6 +20,7 @@ class EntryController:
     def __init__(self):
         self.router = APIRouter()
         self.service = EntryService()
+        self.user_controller = UserController()
         self.inference_controller = InferenceController()
         self.setup_routes()
 
@@ -30,10 +33,14 @@ class EntryController:
         async def start(input: EntryDbInput) -> dict[str, str]:
             try:
 
-                async def post() -> str:
+                async def post(tasks: list[Task]) -> str:
                     try:
                         entry_ids: list[str] = await service.post(
                             data=[input], return_column="entry_id"
+                        )
+                        self.user_controller.increment_usage(
+                            api_key=input.api_key,
+                            tasks=tasks
                         )
                         return entry_ids[0]
                     except Exception as e:
@@ -48,12 +55,10 @@ class EntryController:
                         await service.extract_url_content(url=input.url)
                     )
                     return jsonified_conversation
-
-                entry_id_task = asyncio.create_task(post())
+                tasks: list[Task] = service.validate_tasks(input.tasks)
+                entry_id_task = asyncio.create_task(post(tasks=tasks))
                 conversation_task = asyncio.create_task(extract_url_content())
-
-                service.validate_tasks(input.tasks)
-
+                
                 jsonified_conversation: dict[str, str] = await conversation_task
                 inference_input = InferenceInput(
                     conversation=jsonified_conversation, 
