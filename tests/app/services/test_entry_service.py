@@ -99,15 +99,15 @@ async def test_infer_general_exception(inference_input):
 
 
 VALIDATE_TASKS_VALID_DATA = [
-    (["summarise"]),
-    (["practice"]),
-    (["practice", "summarise"]),
+    (["summarise"], [Task.SUMMARISE]),
+    (["practice"], [Task.PRACTICE]),
+    (["practice", "summarise"], [Task.PRACTICE, Task.SUMMARISE]),
 ]
 
 
-@pytest.mark.parametrize("tasks", VALIDATE_TASKS_VALID_DATA)
-def test_validate_tasks_valid(tasks):
-    EntryService().validate_tasks(tasks)
+@pytest.mark.parametrize("tasks, expected", VALIDATE_TASKS_VALID_DATA)
+def test_validate_tasks_valid(tasks, expected):
+    EntryService().validate_tasks(tasks) == expected
 
 
 VALIDATE_TASKS_INVALID_DATA = [("invalid_task"), ("summarise, practice")]
