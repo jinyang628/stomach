@@ -3,8 +3,10 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.controllers.entry_controller import entry_controller_router
-from app.controllers.user_controller import api_key_controller_router
+from app.controllers.entry_controller import EntryController
+from app.controllers.user_controller import UserController
+from app.services.entry_service import EntryService
+from app.services.user_service import UserService
 
 # Check operating system
 if os.name == "posix":
@@ -29,5 +31,20 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-app.include_router(entry_controller_router, tags=["entries"], prefix="/api/entries")
-app.include_router(api_key_controller_router, tags=["api_keys"], prefix="/api/api_keys")
+
+def get_entry_controller_router():
+    service = EntryService()
+    return EntryController(service=service).router
+
+
+def get_user_controller_router():
+    service = UserService()
+    return UserController(service=service).router
+
+
+app.include_router(
+    get_entry_controller_router(), tags=["entries"], prefix="/api/entries"
+)
+app.include_router(
+    get_user_controller_router(), tags=["api_keys"], prefix="/api/api_keys"
+)
