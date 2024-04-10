@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 class EntryController:
-    
+
     def __init__(self, service: EntryService):
         self.router = APIRouter()
         self.service = service
@@ -22,12 +22,14 @@ class EntryController:
     def setup_routes(self):
 
         router = self.router
-        
+
         @router.post("")
         async def start(input: EntryDbInput) -> JSONResponse:
             try:
-                result: dict[str, Any] = await self.service.start_entry_process(input=input)
+                result: dict[str, Any] = await self.service.start_entry_process(
+                    input=input
+                )
                 return JSONResponse(status_code=200, content=result)
             except Exception as e:
                 log.error("Error starting in entry_controller.py: %s", str(e))
-                raise HTTPException(status_code=500, detail=str(e))        
+                raise HTTPException(status_code=500, detail=str(e))

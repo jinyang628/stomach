@@ -8,7 +8,6 @@ import httpx
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from fastapi import HTTPException
-from fastapi.responses import JSONResponse
 
 from app.controllers.inference_controller import InferenceController
 from app.controllers.user_controller import UserController
@@ -18,6 +17,8 @@ from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
 from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
+from app.services.inference_service import InferenceService
+from app.services.user_service import UserService
 from app.stores.entry import EntryObjectStore
 
 log = logging.getLogger(__name__)
@@ -28,46 +29,40 @@ BRAIN_API_URL: str = os.getenv("BRAIN_API_URL")
 
 
 class EntryService:
-    
+
     ###
     ### Pipeline logic
     ###
-    async def start_entry_process(
-        self, 
-        input: EntryDbInput
-    ) -> dict[str, Any]:
+    async def start_entry_process(self, input: EntryDbInput) -> dict[str, Any]:
         try:
-            tasks: list[Task] = self.validate_tasks(
-                tasks=input.tasks
-            )
-            entry_id_task = asyncio.create_task(
-                self.post_entry_and_increment_usage(
-                    input=input, 
-                    tasks=tasks
-                )
-            )
             conversation_task = asyncio.create_task(
-                self.extract_url_content(
-                    url=input.url
-                )
+                self.extract_url_content(url=input.url)
             )
+
+            tasks: list[Task] = self.validate_tasks(tasks=input.tasks)
+
             jsonified_conversation: dict[str, str] = await conversation_task
-            
+
             inference_input = InferenceInput(
                 conversation=jsonified_conversation, tasks=input.tasks
             )
-            
+
             try:
                 result: dict[str, Any] = await self.infer(data=inference_input)
+
+                # Only post to entry db/increment usage if inference is successful
+                entry_id_task = asyncio.create_task(
+                    self.post_entry_and_increment_usage(input=input, tasks=tasks)
+                )
             except Exception as e:
                 log.error(
                     "Error posting infer request to BRAIN in entry_controller.py: %s",
                     str(e),
                 )
                 raise HTTPException(status_code=500, detail=str(e)) from e
-            
+
             entry_id: str = await entry_id_task
-            
+
             inference_db_input: list[InferenceDbInput] = (
                 self.prepare_inference_db_input_lst(
                     entry_id=entry_id,
@@ -75,9 +70,11 @@ class EntryService:
                     result=result,
                 )
             )
-            
+
             try:
-                await InferenceController().post(data=inference_db_input)
+                await InferenceController(service=InferenceService()).post(
+                    data=inference_db_input
+                )
             except Exception as e:
                 log.error(
                     "Error posting to inference db in entry_controller.py: %s",
@@ -89,19 +86,23 @@ class EntryService:
         except Exception as e:
             log.error("Error starting in entry_controller.py: %s", str(e))
             raise HTTPException(status_code=500, detail=str(e)) from e
-    
+
     async def post_entry_and_increment_usage(
-        self, 
-        input: EntryDbInput,
-        tasks: list[Task]
+        self, input: EntryDbInput, tasks: list[Task]
     ) -> str:
         try:
-            entry_ids: list[str] = await self.post(
-                data=[input], return_column="entry_id"
+            increment_usage_task = asyncio.create_task(
+                UserController(service=UserService()).increment_usage(
+                    api_key=input.api_key, tasks=tasks
+                )
             )
-            UserController().increment_usage(
-                api_key=input.api_key, tasks=tasks
+            post_task = asyncio.create_task(
+                self.post(data=[input], return_column="entry_id")
             )
+
+            await increment_usage_task
+            entry_ids = await post_task
+
             return entry_ids[0]
         except Exception as e:
             log.error(
