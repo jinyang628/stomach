@@ -5,9 +5,10 @@ import pytest
 from fastapi import HTTPException
 from httpx import Response
 
+from app.controllers.entry_controller import EntryController
 from app.models.enum.task import Task
 from app.models.stores.entry import Entry
-from app.models.types import InferenceDbInput, InferenceInput
+from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
 from app.services.entry_service import EntryService
 
 
@@ -27,6 +28,33 @@ def entry_inputs():
             api_key="test_api_key2", url="http://test.url2", entry_id="test_entry_id2"
         ),
     ]
+
+
+# @pytest.mark.asyncio
+# async def test_start_entry_process_success(mocker):
+#     # Mocking external functions
+#     mocker.patch('asyncio.create_task', new=AsyncMock())
+#     mocker.patch('app.services.entry_service.EntryService.extract_url_content', new=AsyncMock())
+
+#     controller = EntryController(service=EntryService())
+#     input = EntryDbInput(api_key="test", url="http://example.com", tasks=[Task.SUMMARISE])
+#     result = await controller.start_entry_process(input)
+
+#     assert result is not None
+
+# @pytest.mark.asyncio
+# async def test_start_entry_process_failure(mocker):
+#     mocker.patch('asyncio.create_task', new=AsyncMock())
+#     mocker.patch('app.services.entry_service.EntryService.extract_url_content', new=AsyncMock(side_effect=Exception("Test Exception")))
+
+#     controller = EntryController()
+#     input = EntryDbInput(api_key="test", url="http://example.com", tasks=[Task.SUMMARISE])
+
+#     with pytest.raises(HTTPException) as exc_info:
+#         await controller.start_entry_process(input)
+
+#     assert exc_info.value.status_code == 500
+#     assert "Test Exception" in str(exc_info.value.detail)
 
 
 @pytest.mark.asyncio

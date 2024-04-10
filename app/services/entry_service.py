@@ -31,8 +31,10 @@ BRAIN_API_URL: str = os.getenv("BRAIN_API_URL")
 class EntryService:
 
     ###
-    ### Pipeline logic
+    ### Main pipeline logic
     ###
+
+    # TODO: Further modularise and test
     async def start_entry_process(self, input: EntryDbInput) -> dict[str, Any]:
         try:
             conversation_task = asyncio.create_task(
@@ -87,6 +89,7 @@ class EntryService:
             log.error("Error starting in entry_controller.py: %s", str(e))
             raise HTTPException(status_code=500, detail=str(e)) from e
 
+    # TODO: Further modularise and test
     async def post_entry_and_increment_usage(
         self, input: EntryDbInput, tasks: list[Task]
     ) -> str:
