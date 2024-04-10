@@ -11,9 +11,9 @@ router = APIRouter()
 
 
 class InferenceController:
-    def __init__(self):
+    def __init__(self, service: InferenceService):
         self.router = APIRouter()
-        self.service = InferenceService()
+        self.service = service
 
     async def post(self, data: list[InferenceDbInput]) -> str:
         try:

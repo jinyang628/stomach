@@ -12,19 +12,18 @@ router = APIRouter()
 
 
 class UserController:
-    def __init__(self):
+    def __init__(self, service: UserService):
         self.router = APIRouter()
-        self.service = UserService()
+        self.service = service
         self.setup_routes()
 
     def setup_routes(self):
         router = self.router
-        service = self.service
 
         @router.get("/validate/{api_key}")
         async def validate(api_key: str):
             try:
-                is_valid_api_key: bool = service.validate_api_key(api_key=api_key)
+                is_valid_api_key: bool = self.service.validate_api_key(api_key=api_key)
                 if not is_valid_api_key:
                     return JSONResponse(
                         status_code=401, content={"message": "Invalid API Key"}
@@ -49,6 +48,3 @@ class UserController:
         except Exception as e:
             log.error(f"Error: {str(e)} in UserController#increment_usage")
             raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-api_key_controller_router = UserController().router
