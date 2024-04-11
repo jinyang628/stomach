@@ -39,6 +39,10 @@ uvicorn app.main:app --reload --port 8080
 
 https://docs.turso.tech/quickstart
 
+### For windows users
+You will need windows wsl to run the turso CLI. You can follow the instructions here: https://docs.microsoft.com/en-us/windows/wsl/install
+Perform the turso installation in the wsl terminal.
+
 ### Login to turso
 ```
 turso auth logout
