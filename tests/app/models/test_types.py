@@ -84,6 +84,7 @@ INFERENCE_INPUT_INVALID_DATA = [
     ),
 ]
 
+
 @pytest.mark.parametrize("conversation, tasks", INFERENCE_INPUT_INVALID_DATA)
 def test_inference_input_invalid_data(conversation, tasks):
     with pytest.raises(ValidationError):
@@ -91,28 +92,49 @@ def test_inference_input_invalid_data(conversation, tasks):
 
 
 BRAIN_RESPONSE_VALID_DATA = [
-    ({"key1": "value1"}, [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
+    (
+        {"key1": "value1"},
+        [{"language": "python", "question": "Q1", "answer": "A1"}],
+        1000,
+    ),
     (None, [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
     ({"key1": "value1"}, None, 1000),
     (None, None, 1000),
 ]
 
+
 @pytest.mark.parametrize("summary, practice, token_sum", BRAIN_RESPONSE_VALID_DATA)
 def test_brain_response_valid_data(summary, practice, token_sum):
     try:
-        response = BrainResponse(summary=summary, practice=practice, token_sum=token_sum)
+        response = BrainResponse(
+            summary=summary, practice=practice, token_sum=token_sum
+        )
         assert response.summary == summary
         assert response.practice == practice
         assert response.token_sum == token_sum
     except ValidationError:
         pytest.fail("Validation error raised unexpectedly for valid BrainResponse data")
 
+
 BRAIN_RESPONSE_INVALID_DATA = [
-    ({"key": "value"}, [{"language": "python", "question": "Q1", "answer": "A1"}], None),
-    ("invalid_summary_type", [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
+    (
+        {"key": "value"},
+        [{"language": "python", "question": "Q1", "answer": "A1"}],
+        None,
+    ),
+    (
+        "invalid_summary_type",
+        [{"language": "python", "question": "Q1", "answer": "A1"}],
+        1000,
+    ),
     ({"key": "value"}, "invalid_practice_type", 1000),
-    ({"key": "value"}, [{"language": "python", "question": "Q1", "answer": "A1"}], "invalid"),
+    (
+        {"key": "value"},
+        [{"language": "python", "question": "Q1", "answer": "A1"}],
+        "invalid",
+    ),
 ]
+
 
 @pytest.mark.parametrize("summary, practice, token_sum", BRAIN_RESPONSE_INVALID_DATA)
 def test_brain_response_invalid_data(summary, practice, token_sum):

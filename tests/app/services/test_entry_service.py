@@ -9,7 +9,8 @@ from httpx import Response
 from app.controllers.entry_controller import EntryController
 from app.models.enum.task import Task
 from app.models.stores.entry import Entry
-from app.models.types import BrainResponse, EntryDbInput, InferenceDbInput, InferenceInput
+from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
+                              InferenceInput)
 from app.services.entry_service import EntryService
 
 
@@ -108,10 +109,7 @@ async def test_infer_successful(inference_input):
         "token_sum": 50000,
     }
 
-    mock_response = httpx.Response(
-        status_code=200, 
-        json=mock_response_data
-    )
+    mock_response = httpx.Response(status_code=200, json=mock_response_data)
 
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
         mock_post.return_value = mock_response
@@ -187,7 +185,7 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
             summary={"key": "value"},
             practice=None,
             token_sum=50000,
-        ),    
+        ),
     ),
     (
         "test_entry_id",
@@ -202,7 +200,7 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
                 }
             ],
             token_sum=50000,
-        ),    
+        ),
     ),
 ]
 

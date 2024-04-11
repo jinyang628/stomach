@@ -25,4 +25,6 @@ class UserService:
         if not token_sum:
             raise ValueError("Token sum cannot be empty in the API call")
 
-        return UserObjectStore().increment_usage(api_key=api_key, usage_counter=token_sum)
+        return UserObjectStore().increment_usage(
+            api_key=api_key, usage_counter=token_sum
+        )

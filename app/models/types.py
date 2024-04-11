@@ -43,12 +43,12 @@ class BrainResponse(BaseModel):
     token_sum: int
 
     class Config:
-        extra = 'forbid'
-        
+        extra = "forbid"
+
     def to_dict_for_user(self):
         """Converts important elements in the BrainResponse object to a dictionary that will be passed back to fingers for the user"""
-        
+
         return {
-            'summary': self.summary,
-            'practice': self.practice,
+            "summary": self.summary,
+            "practice": self.practice,
         }

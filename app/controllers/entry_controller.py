@@ -29,7 +29,9 @@ class EntryController:
                 brain_response: BrainResponse = await self.service.start_entry_process(
                     input=input
                 )
-                return JSONResponse(status_code=200, content=brain_response.to_dict_for_user())
+                return JSONResponse(
+                    status_code=200, content=brain_response.to_dict_for_user()
+                )
             except Exception as e:
                 log.error("Error starting in entry_controller.py: %s", str(e))
                 raise HTTPException(status_code=500, detail=str(e))

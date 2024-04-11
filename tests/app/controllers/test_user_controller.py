@@ -73,10 +73,14 @@ async def test_increment_usage_successful(mock_user_controller, mock_user_servic
     mock_user_service.increment_usage.return_value = True
 
     # Act
-    result = await mock_user_controller.increment_usage(api_key=api_key, token_sum=token_sum)
+    result = await mock_user_controller.increment_usage(
+        api_key=api_key, token_sum=token_sum
+    )
 
     # Assert
-    mock_user_service.increment_usage.assert_called_with(api_key=api_key, token_sum=token_sum)
+    mock_user_service.increment_usage.assert_called_with(
+        api_key=api_key, token_sum=token_sum
+    )
     assert result is True
 
 
@@ -90,4 +94,6 @@ async def test_increment_usage_failure(mock_user_controller, mock_user_service):
     # Act & Assert
     with pytest.raises(HTTPException):
         await mock_user_controller.increment_usage(api_key=api_key, token_sum=token_sum)
-    mock_user_service.increment_usage.assert_called_with(api_key=api_key, token_sum=token_sum)
+    mock_user_service.increment_usage.assert_called_with(
+        api_key=api_key, token_sum=token_sum
+    )

@@ -16,7 +16,8 @@ from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
-from app.models.types import BrainResponse, EntryDbInput, InferenceDbInput, InferenceInput
+from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
+                              InferenceInput)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
 from app.stores.entry import EntryObjectStore
@@ -37,7 +38,9 @@ class EntryService:
     # TODO: Further modularise and test
     async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
         try:
-            jsonified_conversation: dict[str, str] = await self.extract_url_content(url=input.url)
+            jsonified_conversation: dict[str, str] = await self.extract_url_content(
+                url=input.url
+            )
 
             inference_input = InferenceInput(
                 conversation=jsonified_conversation, tasks=input.tasks
@@ -54,7 +57,9 @@ class EntryService:
 
             # Only post to entry db/increment usage if inference is successful
             try:
-                entry_id: str = await self.post_entry_and_increment_usage(input=input, token_sum=result.token_sum)
+                entry_id: str = await self.post_entry_and_increment_usage(
+                    input=input, token_sum=result.token_sum
+                )
             except Exception as e:
                 log.error(
                     "Error posting to entry db/incrementing usage in entry_controller.py: %s",
@@ -341,7 +346,7 @@ class EntryService:
                     )
                 )
             return inference_db_input_lst
-        
+
         return [
             InferenceDbInput(
                 entry_id=entry_id,
