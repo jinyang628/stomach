@@ -57,6 +57,7 @@ class EntryService:
 
             # Only post to entry db/increment usage if inference is successful
             try:
+                log.info(f"Token length: {result.token_sum} has been consumed by the user")
                 entry_id: str = await self.post_entry_and_increment_usage(
                     input=input, token_sum=result.token_sum
                 )
