@@ -1,6 +1,7 @@
 import json
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 from fastapi import HTTPException
 from httpx import Response
@@ -8,7 +9,8 @@ from httpx import Response
 from app.controllers.entry_controller import EntryController
 from app.models.enum.task import Task
 from app.models.stores.entry import Entry
-from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
+from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
+                              InferenceInput)
 from app.services.entry_service import EntryService
 
 
@@ -89,17 +91,30 @@ async def test_post_handles_exceptions(mock_store, entry_inputs):
 @pytest.fixture
 def inference_input():
     return InferenceInput(
-        conversation={"message": "Hello"}, tasks=[Task.SUMMARISE.value]
+        conversation={"message": "Hello"}, tasks=[Task.SUMMARISE, Task.PRACTICE]
     )
 
 
 @pytest.mark.asyncio
 async def test_infer_successful(inference_input):
-    mock_response = {"result": "success"}
+    mock_response_data = {
+        "summary": {"key": "value"},
+        "practice": [
+            {
+                "language": "python",
+                "question": "question_code",
+                "answer": "answer_code",
+            }
+        ],
+        "token_sum": 50000,
+    }
+
+    mock_response = httpx.Response(status_code=200, json=mock_response_data)
+
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
-        mock_post.return_value = Response(200, json=mock_response)
+        mock_post.return_value = mock_response
         result = await EntryService().infer(data=inference_input)
-        assert result == mock_response
+        assert result == BrainResponse(**mock_response_data)
 
 
 @pytest.mark.asyncio
@@ -151,21 +166,41 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
     (
         "test_entry_id",
         {"message": "Hello"},
-        {
-            "summary": {"key": "value"},
-            "practice": [
+        BrainResponse(
+            summary={"key": "value"},
+            practice=[
                 {
                     "language": "python",
                     "question": "question_code",
                     "answer": "answer_code",
                 }
             ],
-        },
+            token_sum=50000,
+        ),
     ),
     (
         "test_entry_id",
         {"message": "Hello"},
-        {"summary": {"key": "value"}, "practice": None},
+        BrainResponse(
+            summary={"key": "value"},
+            practice=None,
+            token_sum=50000,
+        ),
+    ),
+    (
+        "test_entry_id",
+        {"message": "Hello"},
+        BrainResponse(
+            summary=None,
+            practice=[
+                {
+                    "language": "python",
+                    "question": "question_code",
+                    "answer": "answer_code",
+                }
+            ],
+            token_sum=50000,
+        ),
     ),
 ]
 
@@ -182,31 +217,18 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
         assert isinstance(inference_db_input_lst[i], InferenceDbInput)
         assert inference_db_input_lst[i].entry_id == entry_id
         assert inference_db_input_lst[i].conversation == json.dumps(conversation)
-        assert inference_db_input_lst[i].summary == json.dumps(result.get("summary"))
-        if result.get("practice") is None:
+        assert inference_db_input_lst[i].summary == json.dumps(result.summary)
+        if result.practice is None:
             continue
         assert inference_db_input_lst[i].question == json.dumps(
-            result.get("practice")[i].get("question")
+            result.practice[i].get("question")
         )
         assert inference_db_input_lst[i].answer == json.dumps(
-            result.get("practice")[i].get("answer")
+            result.practice[i].get("answer")
         )
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
-    (
-        123,
-        {"message": "Hello"},
-        {
-            "practice": [
-                {
-                    "language": "python",
-                    "question": "question_code",
-                    "answer": "answer_code",
-                }
-            ],
-        },
-    ),
     (
         "test_entry_id",
         {"message": "Hello"},

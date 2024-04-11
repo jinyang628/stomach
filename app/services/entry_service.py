@@ -16,7 +16,8 @@ from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
-from app.models.types import EntryDbInput, InferenceDbInput, InferenceInput
+from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
+                              InferenceInput)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
 from app.stores.entry import EntryObjectStore
@@ -35,27 +36,18 @@ class EntryService:
     ###
 
     # TODO: Further modularise and test
-    async def start_entry_process(self, input: EntryDbInput) -> dict[str, Any]:
+    async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
         try:
-            conversation_task = asyncio.create_task(
-                self.extract_url_content(url=input.url)
+            jsonified_conversation: dict[str, str] = await self.extract_url_content(
+                url=input.url
             )
-
-            tasks: list[Task] = self.validate_tasks(tasks=input.tasks)
-
-            jsonified_conversation: dict[str, str] = await conversation_task
 
             inference_input = InferenceInput(
                 conversation=jsonified_conversation, tasks=input.tasks
             )
 
             try:
-                result: dict[str, Any] = await self.infer(data=inference_input)
-
-                # Only post to entry db/increment usage if inference is successful
-                entry_id_task = asyncio.create_task(
-                    self.post_entry_and_increment_usage(input=input, tasks=tasks)
-                )
+                result: BrainResponse = await self.infer(data=inference_input)
             except Exception as e:
                 log.error(
                     "Error posting infer request to BRAIN in entry_controller.py: %s",
@@ -63,7 +55,18 @@ class EntryService:
                 )
                 raise HTTPException(status_code=500, detail=str(e)) from e
 
-            entry_id: str = await entry_id_task
+            # Only post to entry db/increment usage if inference is successful
+            try:
+                log.info(f"Token length: {result.token_sum} has been consumed by the user")
+                entry_id: str = await self.post_entry_and_increment_usage(
+                    input=input, token_sum=result.token_sum
+                )
+            except Exception as e:
+                log.error(
+                    "Error posting to entry db/incrementing usage in entry_controller.py: %s",
+                    str(e),
+                )
+                raise HTTPException(status_code=500, detail=str(e)) from e
 
             inference_db_input: list[InferenceDbInput] = (
                 self.prepare_inference_db_input_lst(
@@ -91,12 +94,12 @@ class EntryService:
 
     # TODO: Further modularise and test
     async def post_entry_and_increment_usage(
-        self, input: EntryDbInput, tasks: list[Task]
+        self, input: EntryDbInput, token_sum: int
     ) -> str:
         try:
             increment_usage_task = asyncio.create_task(
                 UserController(service=UserService()).increment_usage(
-                    api_key=input.api_key, tasks=tasks
+                    api_key=input.api_key, token_sum=token_sum
                 )
             )
             post_task = asyncio.create_task(
@@ -132,7 +135,7 @@ class EntryService:
     ###
     ### API logic
     ###
-    async def infer(self, data: InferenceInput) -> dict[str, Any]:
+    async def infer(self, data: InferenceInput) -> BrainResponse:
         """Sends a POST request to the Brain for inference and
         returns a dictionary containing the results of the respective
         tasks chosen. If the request fails, an HTTPException is raised.
@@ -161,7 +164,8 @@ class EntryService:
                     raise HTTPException(
                         status_code=500, detail="Failed to complete inference"
                     )
-                return response.json()
+                brain_response: BrainResponse = BrainResponse(**response.json())
+                return brain_response
         except httpx.RequestError as req_error:
             log.error(f"Request error during inference call: {req_error}")
             log.error(
@@ -324,10 +328,11 @@ class EntryService:
         return conversation.jsonify()
 
     def prepare_inference_db_input_lst(
-        self, entry_id: str, conversation: dict[str, str], result: dict[str, Any]
+        self, entry_id: str, conversation: dict[str, str], result: BrainResponse
     ) -> list[InferenceDbInput]:
         """Prepares the input to be stored in the inference table."""
-        practice_lst: list[dict[str, Any]] = result.get("practice")
+
+        practice_lst: list[dict[str, Any]] = result.practice
         if practice_lst:
             practice_length: int = len(practice_lst)
             inference_db_input_lst: list[InferenceDbInput] = []
@@ -336,17 +341,18 @@ class EntryService:
                     InferenceDbInput(
                         entry_id=entry_id,
                         conversation=json.dumps(conversation),
-                        summary=json.dumps(result.get("summary")),
-                        question=json.dumps(result.get("practice")[i].get("question")),
-                        answer=json.dumps(result.get("practice")[i].get("answer")),
+                        summary=json.dumps(result.summary),
+                        question=json.dumps(result.practice[i].get("question")),
+                        answer=json.dumps(result.practice[i].get("answer")),
                     )
                 )
             return inference_db_input_lst
+
         return [
             InferenceDbInput(
                 entry_id=entry_id,
                 conversation=json.dumps(conversation),
-                summary=json.dumps(result.get("summary")),
+                summary=json.dumps(result.summary),
                 question=None,
                 answer=None,
             )
