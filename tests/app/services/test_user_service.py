@@ -18,8 +18,8 @@ def api_key_input():
 
 
 @pytest.fixture
-def tasks_input():
-    return [Task.SUMMARISE, Task.PRACTICE]
+def token_sum_input():
+    return 50000
 
 
 def test_validate_api_key(mock_store, api_key_input):
@@ -45,10 +45,10 @@ def test_validate_api_key_handles_exceptions(mock_store, api_key_input):
     assert "Test Exception" in str(excinfo.value)
 
 
-def test_increment_usage_successful(mock_store, api_key_input, tasks_input):
+def test_increment_usage_successful(mock_store, api_key_input, token_sum_input):
     mock_store.return_value.increment_usage.return_value = True
     is_incremented = UserService().increment_usage(
-        api_key=api_key_input, tasks=tasks_input
+        api_key=api_key_input, token_sum=token_sum_input
     )
 
     assert is_incremented is True
@@ -59,12 +59,12 @@ def test_increment_usage_successful(mock_store, api_key_input, tasks_input):
 
 def test_increment_usage_with_empty_tasks(api_key_input):
     with pytest.raises(ValueError) as excinfo:
-        UserService().increment_usage(api_key=api_key_input, tasks=[])
-    assert "Tasks cannot be empty in the API call" in str(excinfo.value)
+        UserService().increment_usage(api_key=api_key_input, token_sum=None)
+    assert "Token sum cannot be empty in the API call" in str(excinfo.value)
 
 
-def test_increment_usage_handles_exceptions(mock_store, api_key_input, tasks_input):
+def test_increment_usage_handles_exceptions(mock_store, api_key_input, token_sum_input):
     mock_store.return_value.increment_usage.side_effect = Exception("Test Exception")
     with pytest.raises(Exception) as excinfo:
-        UserService().increment_usage(api_key=api_key_input, tasks=tasks_input)
+        UserService().increment_usage(api_key=api_key_input, token_sum=token_sum_input)
     assert "Test Exception" in str(excinfo.value)

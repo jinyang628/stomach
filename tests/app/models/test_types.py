@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.enum.task import Task
-from app.models.types import EntryDbInput, InferenceInput
+from app.models.types import BrainResponse, EntryDbInput, InferenceInput
 
 ENTRY_DB_INPUT_VALID_DATA = [
     ("test_api_key", "https://test_url.com", [Task.SUMMARISE, Task.PRACTICE]),
@@ -84,8 +84,37 @@ INFERENCE_INPUT_INVALID_DATA = [
     ),
 ]
 
-
 @pytest.mark.parametrize("conversation, tasks", INFERENCE_INPUT_INVALID_DATA)
 def test_inference_input_invalid_data(conversation, tasks):
     with pytest.raises(ValidationError):
         InferenceInput(conversation=conversation, tasks=tasks)
+
+
+BRAIN_RESPONSE_VALID_DATA = [
+    ({"key1": "value1"}, [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
+    (None, [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
+    ({"key1": "value1"}, None, 1000),
+    (None, None, 1000),
+]
+
+@pytest.mark.parametrize("summary, practice, token_sum", BRAIN_RESPONSE_VALID_DATA)
+def test_brain_response_valid_data(summary, practice, token_sum):
+    try:
+        response = BrainResponse(summary=summary, practice=practice, token_sum=token_sum)
+        assert response.summary == summary
+        assert response.practice == practice
+        assert response.token_sum == token_sum
+    except ValidationError:
+        pytest.fail("Validation error raised unexpectedly for valid BrainResponse data")
+
+BRAIN_RESPONSE_INVALID_DATA = [
+    ({"key": "value"}, [{"language": "python", "question": "Q1", "answer": "A1"}], None),
+    ("invalid_summary_type", [{"language": "python", "question": "Q1", "answer": "A1"}], 1000),
+    ({"key": "value"}, "invalid_practice_type", 1000),
+    ({"key": "value"}, [{"language": "python", "question": "Q1", "answer": "A1"}], "invalid"),
+]
+
+@pytest.mark.parametrize("summary, practice, token_sum", BRAIN_RESPONSE_INVALID_DATA)
+def test_brain_response_invalid_data(summary, practice, token_sum):
+    with pytest.raises(ValidationError):
+        BrainResponse(summary=summary, practice=practice, token_sum=token_sum)

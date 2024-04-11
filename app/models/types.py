@@ -37,9 +37,18 @@ class InferenceInput(BaseModel):
         extra = "forbid"
 
 
-# class BrainResponse(BaseModel):
-#     summary: Optional[str]
-#     code: Optional[str]
+class BrainResponse(BaseModel):
+    summary: Optional[dict[str, str]]
+    practice: Optional[list[dict[str, str]]]
+    token_sum: int
 
-#     class Config:
-#         extra = 'forbid'
+    class Config:
+        extra = 'forbid'
+        
+    def to_dict_for_user(self):
+        """Converts important elements in the BrainResponse object to a dictionary that will be passed back to fingers for the user"""
+        
+        return {
+            'summary': self.summary,
+            'practice': self.practice,
+        }

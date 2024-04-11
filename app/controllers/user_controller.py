@@ -36,10 +36,10 @@ class UserController:
                 log.error(f"Error: {str(e)} in UserController#setup_routes#validate")
                 return JSONResponse(status_code=500, content={"Error": str(e)})
 
-    async def increment_usage(self, api_key: str, tasks: list[Task]) -> bool:
+    async def increment_usage(self, api_key: str, token_sum: int) -> bool:
         try:
             is_usage_incremented: bool = self.service.increment_usage(
-                api_key=api_key, tasks=tasks
+                api_key=api_key, token_sum=token_sum
             )
             if not is_usage_incremented:
                 log.error(f"Error incrementing usage for api_key: {api_key}")
