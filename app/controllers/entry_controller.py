@@ -1,9 +1,9 @@
 import logging
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
+from app.exceptions.exception import DatabaseError, PipelineError, UsageLimitExceededError
 from app.models.types import BrainResponse, EntryDbInput
 from app.services.entry_service import EntryService
 
@@ -32,6 +32,15 @@ class EntryController:
                 return JSONResponse(
                     status_code=200, content=brain_response.to_dict_for_user()
                 )
+            except UsageLimitExceededError as e:
+                log.error("Usage limit exceeded: %s", str(e))
+                raise UsageLimitExceededError(message=str(e))
+            except DatabaseError as e:
+                log.error("Database error: %s", str(e))
+                raise DatabaseError(message=str(e)) from e
+            except PipelineError as e:
+                log.error("Error in entry_controller.py: %s", str(e))
+                raise PipelineError(message=str(e)) from e
             except Exception as e:
-                log.error("Error starting in entry_controller.py: %s", str(e))
-                raise HTTPException(status_code=500, detail=str(e))
+                log.error("Unexpected error in entry_controller.py: %s", str(e))
+                raise HTTPException(status_code=500, detail=str(e)) from e

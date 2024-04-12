@@ -11,16 +11,19 @@ from fastapi import HTTPException
 
 from app.controllers.inference_controller import InferenceController
 from app.controllers.user_controller import UserController
+from app.exceptions.exception import DatabaseError, PipelineError, UsageLimitExceededError
 from app.models.enum.shareGpt import ShareGpt
 from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
-from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
-                              InferenceInput)
+from app.models.types import (
+    BrainResponse, EntryDbInput, InferenceDbInput, InferenceInput
+)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
 from app.stores.entry import EntryObjectStore
+from app.stores.user import USAGE_LIMIT
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +41,12 @@ class EntryService:
     # TODO: Further modularise and test
     async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
         try:
+            is_within_limit: bool = await self.is_within_limit(
+                api_key=input.api_key
+            )
+            if not is_within_limit:
+                raise UsageLimitExceededError(message=f"Usage limit exceeded {USAGE_LIMIT}")
+            
             jsonified_conversation: dict[str, str] = await self.extract_url_content(
                 url=input.url
             )
@@ -48,12 +57,14 @@ class EntryService:
 
             try:
                 result: BrainResponse = await self.infer(data=inference_input)
-            except Exception as e:
+            except PipelineError as e:
                 log.error(
-                    "Error posting infer request to BRAIN in entry_controller.py: %s",
+                    "Error posting infer request to BRAIN in entry_service.py: %s",
                     str(e),
                 )
-                raise HTTPException(status_code=500, detail=str(e)) from e
+                raise PipelineError(message=str(e)) from e
+            except Exception as e:
+                raise e
 
             # Only post to entry db/increment usage if inference is successful
             try:
@@ -61,12 +72,18 @@ class EntryService:
                 entry_id: str = await self.post_entry_and_increment_usage(
                     input=input, token_sum=result.token_sum
                 )
-            except Exception as e:
+            except DatabaseError as e:
                 log.error(
-                    "Error posting to entry db/incrementing usage in entry_controller.py: %s",
+                    "Error posting to entry db/incrementing usage in entry_service.py: %s",
                     str(e),
                 )
-                raise HTTPException(status_code=500, detail=str(e)) from e
+                raise e
+            except Exception as e:
+                log.error(
+                    "Unexpected error while posting to entry db/incrementing usage in entry_service.py: %s",
+                    str(e),
+                )
+                raise e
 
             inference_db_input: list[InferenceDbInput] = (
                 self.prepare_inference_db_input_lst(
@@ -77,20 +94,29 @@ class EntryService:
             )
 
             try:
-                await InferenceController(service=InferenceService()).post(
-                    data=inference_db_input
+                await InferenceService().post(
+                    data=inference_db_input, return_column="id"
                 )
-            except Exception as e:
+            except DatabaseError as e:
                 log.error(
-                    "Error posting to inference db in entry_controller.py: %s",
+                    "Error posting to inference db in entry_service.py: %s",
                     str(e),
                 )
-                raise HTTPException(status_code=500, detail=str(e)) from e
+                raise e
+            except Exception as e:
+                log.error(
+                    "Unexpected error while posting to inference db in entry_service.py: %s",
+                    str(e),
+                )
+                raise e
 
             return result
+        except HTTPException as e:
+            log.error("Error in entry_service.py: %s", str(e))
+            raise e
         except Exception as e:
-            log.error("Error starting in entry_controller.py: %s", str(e))
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            log.error("Error in entry_service.py: %s", str(e))
+            raise e
 
     # TODO: Further modularise and test
     async def post_entry_and_increment_usage(
@@ -110,16 +136,46 @@ class EntryService:
             entry_ids = await post_task
 
             return entry_ids[0]
+        except DatabaseError as e:
+            log.error(
+                "Error incrementing usage/posting to entry db in entry_service.py: %s", str(e)
+            )
+            raise e
         except Exception as e:
             log.error(
-                "Error posting to entry db in entry_controller.py: %s",
-                str(e),
+                "Unexpected error while incrementing usage/posting to entry db in entry_service.py: %s",
+                str(e)
             )
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            raise e
 
     ###
     ### DB logic
     ###
+    async def is_within_limit(self, api_key: str) -> bool:
+        """Checks if the user has reached the usage limit.
+
+        Args:
+            api_key (str): The API key of the user
+
+        Returns:
+            bool: True if the user has not reached the usage limit, False otherwise
+        """
+
+        try:
+            is_within_limt: bool = UserService().is_within_limit(api_key=api_key)
+            return is_within_limt
+        except DatabaseError as e:
+            log.error(
+                "Error checking usage limit in entry_service.py: %s",
+            )
+            raise e
+        except Exception as e:
+            log.error(
+                "Unexpected error while checking usage limit in entry_servie.py: %s",
+                str(e),
+            )
+            raise e
+    
     async def post(self, data: list[EntryDbInput], return_column: str) -> list[Any]:
         entry_store = EntryObjectStore()
         entry_lst: list[Entry] = []
@@ -142,9 +198,6 @@ class EntryService:
 
         Args:
             entry (dict[str, str]): The entry to be sent for inference
-
-        Raises:
-            HTTPException: If inference fails
         """
 
         try:
@@ -161,25 +214,19 @@ class EntryService:
                     log.error(
                         f"Inference API call failed with status code {response.status_code}, response: {response.text}"
                     )
-                    raise HTTPException(
-                        status_code=500, detail="Failed to complete inference"
+                    raise PipelineError(
+                        message="Failed to complete inference"
                     )
                 brain_response: BrainResponse = BrainResponse(**response.json())
                 return brain_response
-        except httpx.RequestError as req_error:
-            log.error(f"Request error during inference call: {req_error}")
-            log.error(
-                f"Request details: URL: {req_error.request.url}, Method: {req_error.request.method}"
-            )
-            raise HTTPException(status_code=500, detail=str(req_error)) from req_error
-        except json.JSONDecodeError as json_error:
-            log.error(f"JSON decoding error: {json_error}")
-            raise HTTPException(
-                status_code=500, detail="Invalid JSON response"
-            ) from json_error
+        except PipelineError as e:
+            raise e
+        except json.JSONDecodeError as e:
+            log.error(f"JSON decoding error: {e}")
+            raise e
         except Exception as e:
             log.error(f"Unexpected error in infer: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            raise e
 
     ###
     ### Business logic

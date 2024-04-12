@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
+from app.exceptions.exception import DatabaseError
 from app.services.user_service import UserService
 
 log = logging.getLogger(__name__)
@@ -42,8 +43,11 @@ class UserController:
             )
             if not is_usage_incremented:
                 log.error(f"Error incrementing usage for api_key: {api_key}")
-                raise HTTPException(status_code=500, detail=str(e)) from e
+                raise DatabaseError(message=str(e)) from e
             return is_usage_incremented
+        except DatabaseError as e:
+            log.error(f"Database error: {str(e)} in UserController#increment_usage")
+            raise e
         except Exception as e:
-            log.error(f"Error: {str(e)} in UserController#increment_usage")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            log.error(f"Unexpected error while incrementing_usage: {str(e)}")
+            raise e
