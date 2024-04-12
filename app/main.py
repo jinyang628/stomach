@@ -43,8 +43,8 @@ def get_user_controller_router():
 
 
 app.include_router(
-    get_entry_controller_router(), tags=["entries"], prefix="/api/entries"
+    get_entry_controller_router(), tags=["entries"], prefix="/api/entry"
 )
 app.include_router(
-    get_user_controller_router(), tags=["api_keys"], prefix="/api/api_keys"
+    get_user_controller_router(), tags=["user"], prefix="/api/user"
 )

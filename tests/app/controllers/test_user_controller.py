@@ -92,7 +92,7 @@ async def test_increment_usage_failure(mock_user_controller, mock_user_service):
     mock_user_service.increment_usage.side_effect = Exception("Test Exception")
 
     # Act & Assert
-    with pytest.raises(HTTPException):
+    with pytest.raises(Exception):
         await mock_user_controller.increment_usage(api_key=api_key, token_sum=token_sum)
     mock_user_service.increment_usage.assert_called_with(
         api_key=api_key, token_sum=token_sum

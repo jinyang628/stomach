@@ -1,12 +1,12 @@
 import logging
 import sqlite3
 
+from app.exceptions.exception import DatabaseError
 from app.models.stores.inference import Inference
 from app.models.types import InferenceDbInput
 from app.stores.inference import InferenceObjectStore
 
 log = logging.getLogger(__name__)
-
 
 class InferenceService:
     async def post(self, data: list[InferenceDbInput], return_column: str) -> str:
@@ -34,3 +34,9 @@ class InferenceService:
                 )
             else:
                 raise ValueError(f"Error inserting inferences: {str(e)}") from e
+        except DatabaseError as e:
+            log.error(f"Database error: {str(e)} in InferenceService#post")
+            raise e
+        except Exception as e:
+            log.error(f"Unexpected error while inserting inferences: {str(e)}")
+            raise e
