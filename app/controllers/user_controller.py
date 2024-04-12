@@ -3,7 +3,6 @@ import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.models.enum.task import Task
 from app.services.user_service import UserService
 
 log = logging.getLogger(__name__)
