@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 USAGE_LIMIT: int = 400_000
 
+
 class UserObjectStore:
     _store: ObjectStore = None
 
@@ -47,7 +48,7 @@ class UserObjectStore:
         if len(usage) == 0:
             raise Exception(f"No user found for api_key: {api_key}")
         return usage[0] < USAGE_LIMIT
-    
+
     def validate_api_key(self, api_key: str) -> bool:
         ids: list[str] = self._store.get_values_by_matching_condition(
             column_to_match="api_key",

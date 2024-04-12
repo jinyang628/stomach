@@ -3,7 +3,8 @@ import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.exceptions.exception import DatabaseError, PipelineError, UsageLimitExceededError
+from app.exceptions.exception import (DatabaseError, PipelineError,
+                                      UsageLimitExceededError)
 from app.models.types import BrainResponse, EntryDbInput
 from app.services.entry_service import EntryService
 

@@ -8,6 +8,7 @@ from app.stores.inference import InferenceObjectStore
 
 log = logging.getLogger(__name__)
 
+
 class InferenceService:
     async def post(self, data: list[InferenceDbInput], return_column: str) -> str:
         store = InferenceObjectStore()

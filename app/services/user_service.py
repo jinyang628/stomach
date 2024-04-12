@@ -1,11 +1,13 @@
+import logging
+
 from app.exceptions.exception import DatabaseError
 from app.stores.user import UserObjectStore
-import logging
 
 log = logging.getLogger(__name__)
 
+
 class UserService:
-    
+
     def is_within_limit(self, api_key: str) -> bool:
         """Valides if the user is within the limit
 
@@ -20,8 +22,7 @@ class UserService:
             return is_within_limit
         except Exception as e:
             raise DatabaseError(message=str(e)) from e
-        
-        
+
     def validate_api_key(self, api_key: str) -> bool:
         """Validates the API key in the user table
 
