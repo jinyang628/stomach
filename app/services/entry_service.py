@@ -9,17 +9,16 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
-from app.controllers.inference_controller import InferenceController
 from app.controllers.user_controller import UserController
-from app.exceptions.exception import DatabaseError, PipelineError, UsageLimitExceededError
+from app.exceptions.exception import (DatabaseError, PipelineError,
+                                      UsageLimitExceededError)
 from app.models.enum.shareGpt import ShareGpt
 from app.models.enum.task import Task
 from app.models.logic.conversation import Conversation
 from app.models.logic.message import AssistantMessage, Message, UserMessage
 from app.models.stores.entry import Entry
-from app.models.types import (
-    BrainResponse, EntryDbInput, InferenceDbInput, InferenceInput
-)
+from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
+                              InferenceInput)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
 from app.stores.entry import EntryObjectStore
@@ -41,12 +40,12 @@ class EntryService:
     # TODO: Further modularise and test
     async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
         try:
-            is_within_limit: bool = await self.is_within_limit(
-                api_key=input.api_key
-            )
+            is_within_limit: bool = await self.is_within_limit(api_key=input.api_key)
             if not is_within_limit:
-                raise UsageLimitExceededError(message=f"Usage limit exceeded {USAGE_LIMIT}")
-            
+                raise UsageLimitExceededError(
+                    message=f"Usage limit exceeded {USAGE_LIMIT}"
+                )
+
             jsonified_conversation: dict[str, str] = await self.extract_url_content(
                 url=input.url
             )
@@ -68,7 +67,9 @@ class EntryService:
 
             # Only post to entry db/increment usage if inference is successful
             try:
-                log.info(f"Token length: {result.token_sum} has been consumed by the user")
+                log.info(
+                    f"Token length: {result.token_sum} has been consumed by the user"
+                )
                 entry_id: str = await self.post_entry_and_increment_usage(
                     input=input, token_sum=result.token_sum
                 )
@@ -118,7 +119,6 @@ class EntryService:
             log.error("Error in entry_service.py: %s", str(e))
             raise e
 
-    # TODO: Further modularise and test
     async def post_entry_and_increment_usage(
         self, input: EntryDbInput, token_sum: int
     ) -> str:
@@ -138,13 +138,14 @@ class EntryService:
             return entry_ids[0]
         except DatabaseError as e:
             log.error(
-                "Error incrementing usage/posting to entry db in entry_service.py: %s", str(e)
+                "Error incrementing usage/posting to entry db in entry_service.py: %s",
+                str(e),
             )
             raise e
         except Exception as e:
             log.error(
                 "Unexpected error while incrementing usage/posting to entry db in entry_service.py: %s",
-                str(e)
+                str(e),
             )
             raise e
 
@@ -175,7 +176,7 @@ class EntryService:
                 str(e),
             )
             raise e
-    
+
     async def post(self, data: list[EntryDbInput], return_column: str) -> list[Any]:
         entry_store = EntryObjectStore()
         entry_lst: list[Entry] = []
@@ -214,9 +215,7 @@ class EntryService:
                     log.error(
                         f"Inference API call failed with status code {response.status_code}, response: {response.text}"
                     )
-                    raise PipelineError(
-                        message="Failed to complete inference"
-                    )
+                    raise PipelineError(message="Failed to complete inference")
                 brain_response: BrainResponse = BrainResponse(**response.json())
                 return brain_response
         except PipelineError as e:

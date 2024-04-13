@@ -18,19 +18,22 @@ from app.services.entry_service import EntryService
 def mock_store():
     with patch("app.services.entry_service.EntryObjectStore") as mock:
         yield mock
-        
+
+
 @pytest.fixture
 def user_service_mock():
     # Patch the UserService where it is imported and used in EntryService
-    with patch('app.services.entry_service.UserService') as mock:
+    with patch("app.services.entry_service.UserService") as mock:
         mock_instance = mock.return_value
-        mock_instance.is_within_limit.return_value = True  # Default return value for simple cases
+        mock_instance.is_within_limit.return_value = (
+            True  # Default return value for simple cases
+        )
         yield mock_instance
+
 
 @pytest.fixture
 def entry_service():
     return EntryService()
-
 
 
 @pytest.fixture
@@ -259,37 +262,40 @@ def test_prepare_inference_db_input_invalid(entry_id, conversation, result):
             entry_id=entry_id, conversation=conversation, result=result
         )
 
+
 @pytest.mark.asyncio
 async def test_is_within_limit_true(user_service_mock, entry_service):
     # Setup mock to return True
     user_service_mock.is_within_limit.return_value = True
-    
+
     # Call the method
     result = await entry_service.is_within_limit(api_key="dummy_api_key")
-    
+
     # Assert correct behavior
     assert result is True
     user_service_mock.is_within_limit.assert_called_once_with(api_key="dummy_api_key")
+
 
 @pytest.mark.asyncio
 async def test_is_within_limit_false(user_service_mock, entry_service):
     # Setup mock to return False
     user_service_mock.is_within_limit.return_value = False
-    
+
     # Call the method
     result = await entry_service.is_within_limit(api_key="dummy_api_key")
-    
+
     # Assert correct behavior
     assert result is False
     user_service_mock.is_within_limit.assert_called_once_with(api_key="dummy_api_key")
+
 
 @pytest.mark.asyncio
 async def test_is_within_limit_raises_http_exception(user_service_mock, entry_service):
     # Setup mock to raise an Exception
     user_service_mock.is_within_limit.side_effect = Exception("Unexpected error")
-    
+
     # Assert that an HTTPException is raised with correct status and message
     with pytest.raises(Exception) as exc_info:
         await entry_service.is_within_limit(api_key="dummy_api_key")
-    
+
     assert "Unexpected error" in str(exc_info.value)

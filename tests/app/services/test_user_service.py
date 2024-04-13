@@ -36,7 +36,9 @@ def test_validate_api_key(mock_user_store, api_key_input):
 
 
 def test_validate_api_key_handles_exceptions(mock_user_store, api_key_input):
-    mock_user_store.return_value.validate_api_key.side_effect = Exception("Test Exception")
+    mock_user_store.return_value.validate_api_key.side_effect = Exception(
+        "Test Exception"
+    )
 
     with pytest.raises(Exception) as excinfo:
         UserService().validate_api_key(api_key_input)
@@ -62,11 +64,16 @@ def test_increment_usage_with_empty_tasks(api_key_input):
     assert "Token sum cannot be empty in the API call" in str(excinfo.value)
 
 
-def test_increment_usage_handles_exceptions(mock_user_store, api_key_input, token_sum_input):
-    mock_user_store.return_value.increment_usage.side_effect = Exception("Test Exception")
+def test_increment_usage_handles_exceptions(
+    mock_user_store, api_key_input, token_sum_input
+):
+    mock_user_store.return_value.increment_usage.side_effect = Exception(
+        "Test Exception"
+    )
     with pytest.raises(Exception) as excinfo:
         UserService().increment_usage(api_key=api_key_input, token_sum=token_sum_input)
     assert "Test Exception" in str(excinfo.value)
+
 
 def test_is_within_limit_true(mock_user_store, api_key_input):
     # Setup mock to return True, indicating the user is within the limit
@@ -77,7 +84,10 @@ def test_is_within_limit_true(mock_user_store, api_key_input):
 
     # Assert that the function returns True
     assert is_within_limit is True
-    mock_user_store.return_value.is_within_limit.assert_called_once_with(api_key=api_key_input)
+    mock_user_store.return_value.is_within_limit.assert_called_once_with(
+        api_key=api_key_input
+    )
+
 
 def test_is_within_limit_false(mock_user_store, api_key_input):
     # Setup mock to return False, indicating the user is not within the limit
@@ -88,15 +98,22 @@ def test_is_within_limit_false(mock_user_store, api_key_input):
 
     # Assert that the function returns False
     assert is_within_limit is False
-    mock_user_store.return_value.is_within_limit.assert_called_once_with(api_key=api_key_input)
+    mock_user_store.return_value.is_within_limit.assert_called_once_with(
+        api_key=api_key_input
+    )
+
 
 def test_is_within_limit_handles_exceptions(mock_user_store, api_key_input):
     # Setup mock to raise an exception
-    mock_user_store.return_value.is_within_limit.side_effect = Exception("Database failure")
+    mock_user_store.return_value.is_within_limit.side_effect = Exception(
+        "Database failure"
+    )
 
     # Assert that an appropriate exception is raised when calling the method
     with pytest.raises(Exception) as exc_info:
         UserService().is_within_limit(api_key=api_key_input)
 
     assert "Database failure" in str(exc_info.value)
-    mock_user_store.return_value.is_within_limit.assert_called_once_with(api_key=api_key_input)
+    mock_user_store.return_value.is_within_limit.assert_called_once_with(
+        api_key=api_key_input
+    )
