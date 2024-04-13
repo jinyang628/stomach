@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
-from app.controllers.inference_controller import InferenceController
 from app.controllers.user_controller import UserController
 from app.exceptions.exception import (DatabaseError, PipelineError,
                                       UsageLimitExceededError)
@@ -120,7 +119,6 @@ class EntryService:
             log.error("Error in entry_service.py: %s", str(e))
             raise e
 
-    # TODO: Further modularise and test
     async def post_entry_and_increment_usage(
         self, input: EntryDbInput, token_sum: int
     ) -> str:
