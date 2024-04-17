@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+from typing import Any
 
 from app.exceptions.exception import DatabaseError
 from app.models.stores.inference import Inference
@@ -10,7 +11,15 @@ log = logging.getLogger(__name__)
 
 
 class InferenceService:
-    async def post(self, data: list[InferenceDbInput], return_column: str) -> str:
+    async def post(self, data: list[InferenceDbInput], return_column: str) -> list[Any]:
+        """Insert a list of inference data points into the inference table.
+
+        Args:
+            data (list[InferenceDbInput]): The list of inference data points to be inserted.
+            return_column (str): The column value to return after insertion.
+        Returns:
+            list[Any]: The list of the identifiers of the successfully inserted the data points (can be modified to return other column values).
+        """
         store = InferenceObjectStore()
         inference_lst: list[Inference] = []
         for element in data:
@@ -18,8 +27,10 @@ class InferenceService:
                 entry_id=element.entry_id,
                 conversation=element.conversation,
                 summary=element.summary,
+                summary_chunk=element.summary_chunk,
                 question=element.question,
                 answer=element.answer,
+                language=element.language,
             )
             inference_lst.append(inference)
         try:
