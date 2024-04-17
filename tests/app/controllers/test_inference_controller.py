@@ -34,8 +34,10 @@ async def test_post_success(mock_inference_controller, mock_inference_service):
             entry_id="shawn",
             conversation="Should I use the upper case or lower case for the type hint",
             summary="You should use lower case",
+            summary_chunk="lower case",
             question="test question",
             answer="test answer",
+            language="en",
         )
     ]
 
@@ -55,8 +57,10 @@ async def test_post_error(mock_inference_controller, mock_inference_service):
             entry_id="shawn",
             conversation="Should I use the upper case or lower case for the type hint",
             summary="You should use lower case",
+            summary_chunk="lower case",
             question="test question",
             answer="test answer",
+            language="en",
         )
     ]
 

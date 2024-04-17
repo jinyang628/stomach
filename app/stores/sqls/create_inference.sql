@@ -14,11 +14,13 @@ CREATE TABLE inference (
     entry_id TEXT NOT NULL,
     conversation TEXT NOT NULL,
     summary TEXT,
+    summary_chunk TEXT,
     question TEXT,
     answer TEXT,
+    language TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, conversation, summary, question, answer),
+    UNIQUE(version, entry_id, conversation, summary, summary_chunk, question, answer, language),
     CHECK(version <> ''),
     CHECK(entry_id <> ''),
     CHECK(conversation <> '')
@@ -36,8 +38,10 @@ VALUES
             'entry_id', NEW.entry_id,
             'conversation', NEW.conversation,
             'summary', NEW.summary,
+            'summary_chunk', NEW.summary_chunk,
             'question', NEW.question,
-            'answer', NEW.answer
+            'answer', NEW.answer,
+            'language', NEW.language
         ),
         'INSERT'
     );
@@ -57,8 +61,10 @@ VALUES
             'entry_id', NEW.entry_id,
             'conversation', NEW.conversation,
             'summary', NEW.summary,
+            'summary_chunk', NEW.summary_chunk,
             'question', NEW.question,
-            'answer', NEW.answer
+            'answer', NEW.answer,
+            'language', NEW.language
         ),
         'UPDATE'
     );
@@ -84,8 +90,10 @@ VALUES
             'entry_id', OLD.entry_id,
             'conversation', OLD.conversation,
             'summary', OLD.summary,
+            'summary_chunk', OLD.summary_chunk,
             'question', OLD.question,
-            'answer', OLD.answer
+            'answer', OLD.answer,
+            'language', OLD.language
         ),
         'DELETE'
     );

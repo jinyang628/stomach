@@ -21,8 +21,10 @@ async def test_post_success():
             entry_id="123",
             conversation="Test conversation",
             summary="Test summary",
+            summary_chunk="Test summary chunk",
             question="Test question",
             answer="Test answer",
+            language="en",
         )
     ]
 
@@ -52,8 +54,10 @@ async def test_post_failure():
             entry_id="123",
             conversation="Test conversation",
             summary="Test summary",
+            summary_chunk="Test summary chunk",
             question="Test question",
             answer="Test answer",
+            language="en",
         )
     ]
 

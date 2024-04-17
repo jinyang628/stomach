@@ -12,12 +12,10 @@ from app.services.user_service import UserService
 if os.name == "posix":
     # macOS, Linux, or Unix
     from dotenv import dotenv_values
-
     config = dotenv_values(".env")
 else:
     # Windows or Windows WSL
     from dotenv import load_dotenv
-
     load_dotenv(".env")
 
 app = FastAPI()
