@@ -26,6 +26,14 @@ class EntryController:
 
         @router.post("")
         async def start(input: EntryDbInput) -> JSONResponse:
+            """Marks the start of the pipeline when the user submits a ShareGPT link.
+
+            Args:
+                input (EntryDbInput): The input data to be stored in the entry table
+
+            Returns:
+                JSONResponse: The inference response from Brain to be passed back to Fingers. 
+            """
             try:
                 brain_response: BrainResponse = await self.service.start_entry_process(
                     input=input

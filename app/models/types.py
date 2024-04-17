@@ -21,8 +21,10 @@ class InferenceDbInput(BaseModel):
     entry_id: str
     conversation: str
     summary: Optional[str]
+    summary_chunk: Optional[str]
     question: Optional[str]
     answer: Optional[str]
+    language: Optional[str]
 
 
 ###

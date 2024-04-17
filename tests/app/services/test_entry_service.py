@@ -117,6 +117,7 @@ async def test_infer_successful(inference_input):
         "summary": {"key": "value"},
         "practice": [
             {
+                "summary_chunk": "summary_chunk",
                 "language": "python",
                 "question": "question_code",
                 "answer": "answer_code",
@@ -186,6 +187,7 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
             summary={"key": "value"},
             practice=[
                 {
+                    "summary_chunk": "summary_chunk",
                     "language": "python",
                     "question": "question_code",
                     "answer": "answer_code",
@@ -210,6 +212,7 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
             summary=None,
             practice=[
                 {
+                    "summary_chunk": "summary_chunk",
                     "language": "python",
                     "question": "question_code",
                     "answer": "answer_code",

@@ -13,21 +13,26 @@ def main():
     obj_store = ObjectStore(table_name="inference")
     obj_store.execute(
         sql="""
-CREATE TABLE inference (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    version INTEGER NOT NULL,
-    entry_id TEXT NOT NULL,
-    conversation TEXT NOT NULL,
-    summary TEXT,
-    question TEXT,
-    answer TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, conversation, summary, question, answer),
-    CHECK(version <> ''),
-    CHECK(entry_id <> ''),
-    CHECK(conversation <> '')
-);
+CREATE TRIGGER inference_delete
+AFTER
+    DELETE ON inference FOR EACH ROW BEGIN
+VALUES
+    (
+        'inference', OLD.id,
+        json_object(
+            'version', OLD.version,
+            'entry_id', OLD.entry_id,
+            'conversation', OLD.conversation,
+            'summary', OLD.summary,
+            'summary_chunk', OLD.summary_chunk,
+            'question', OLD.question,
+            'answer', OLD.answer,
+            'language', OLD.language
+        ),
+        'DELETE'
+    );
+
+END;
 """
     )
 

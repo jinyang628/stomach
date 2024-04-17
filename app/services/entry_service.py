@@ -36,9 +36,8 @@ class EntryService:
     ###
     ### Main pipeline logic
     ###
-
-    # TODO: Further modularise and test
     async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
+        """Main function that controls the overall flow of the business logic in the pre-inference part of the pipeline."""
         try:
             is_within_limit: bool = await self.is_within_limit(api_key=input.api_key)
             if not is_within_limit:
@@ -122,6 +121,15 @@ class EntryService:
     async def post_entry_and_increment_usage(
         self, input: EntryDbInput, token_sum: int
     ) -> str:
+        """Posts the entry to the entry db and increments the usage of the user upon successful inference.
+
+        Args:
+            input (EntryDbInput): The input data to be stored in the entry table
+            token_sum (int): The token sum consumed by the user in this inference call
+
+        Returns:
+            str: The entry_id of the entry posted to the entry db, which will be a foreign key in the inference table
+        """
         try:
             increment_usage_task = asyncio.create_task(
                 UserController(service=UserService()).increment_usage(
@@ -195,10 +203,10 @@ class EntryService:
     async def infer(self, data: InferenceInput) -> BrainResponse:
         """Sends a POST request to the Brain for inference and
         returns a dictionary containing the results of the respective
-        tasks chosen. If the request fails, an HTTPException is raised.
-
+        tasks chosen.
+        
         Args:
-            entry (dict[str, str]): The entry to be sent for inference
+            data (InferenceInput): The entry to be sent for inference
         """
 
         try:
@@ -376,7 +384,16 @@ class EntryService:
     def prepare_inference_db_input_lst(
         self, entry_id: str, conversation: dict[str, str], result: BrainResponse
     ) -> list[InferenceDbInput]:
-        """Prepares the input to be stored in the inference table."""
+        """Prepares the input to be stored in the inference table.
+
+        Args:
+            entry_id (str): The foreign key of the entry table
+            conversation (dict[str, str]): The conversation extracted from the ShareGPT url
+            result (BrainResponse): The result of the inference
+
+        Returns:
+            list[InferenceDbInput]: _description_
+        """
 
         practice_lst: list[dict[str, Any]] = result.practice
         if practice_lst:
@@ -388,8 +405,11 @@ class EntryService:
                         entry_id=entry_id,
                         conversation=json.dumps(conversation),
                         summary=json.dumps(result.summary),
+                        summary_chunk=json.dumps(result.practice[i].get("summary_chunk")),
                         question=json.dumps(result.practice[i].get("question")),
                         answer=json.dumps(result.practice[i].get("answer")),
+                        # Even though language is just a generic string, we do json.dumps to keep the format consistent
+                        language=json.dumps(result.practice[i].get("language")),
                     )
                 )
             return inference_db_input_lst
@@ -399,7 +419,9 @@ class EntryService:
                 entry_id=entry_id,
                 conversation=json.dumps(conversation),
                 summary=json.dumps(result.summary),
+                summary_chunk=None,
                 question=None,
                 answer=None,
+                language=None,
             )
         ]
