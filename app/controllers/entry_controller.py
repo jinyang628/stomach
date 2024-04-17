@@ -32,7 +32,7 @@ class EntryController:
                 input (EntryDbInput): The input data to be stored in the entry table
 
             Returns:
-                JSONResponse: The inference response from Brain to be passed back to Fingers. 
+                JSONResponse: The inference response from Brain to be passed back to Fingers.
             """
             try:
                 brain_response: BrainResponse = await self.service.start_entry_process(

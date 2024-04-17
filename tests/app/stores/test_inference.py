@@ -17,8 +17,10 @@ def test_insert_get_update_delete():
             }
         ),
         summary="test_summary",
+        summary_chunk="test_summary_chunk", 
         question=None,
         answer=None,
+        language=None,
     )
     object_2 = Inference.local(
         entry_id="test_entry_id_2",
@@ -30,8 +32,10 @@ def test_insert_get_update_delete():
             }
         ),
         summary=None,
+        summary_chunk=None,
         question="test_question",
         answer="test_answer",
+        language="en",
     )
     inserted_ids: List[int] = store.insert(inferences=[object_1, object_2])
     assert len(inserted_ids) == 2
@@ -45,8 +49,10 @@ def test_insert_get_update_delete():
     assert obj_1.entry_id == object_1.entry_id
     assert obj_1.conversation == object_1.conversation
     assert obj_1.summary == object_1.summary
+    assert obj_1.summary_chunk == object_1.summary_chunk
     assert obj_1.question == object_1.question
     assert obj_1.answer == object_1.answer
+    assert obj_1.language == object_1.language
 
     obj_2 = objs[1]
     assert obj_2.id == inserted_ids[1]
@@ -54,8 +60,10 @@ def test_insert_get_update_delete():
     assert obj_2.entry_id == object_2.entry_id
     assert obj_2.conversation == object_2.conversation
     assert obj_2.summary == object_2.summary
+    assert obj_2.summary_chunk == object_2.summary_chunk
     assert obj_2.question == object_2.question
     assert obj_2.answer == object_2.answer
+    assert obj_2.language == object_2.language
 
     obj_1.summary = "test_summary_updated"
     success = store.update(inferences=[obj_1])

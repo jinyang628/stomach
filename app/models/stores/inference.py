@@ -14,8 +14,10 @@ class Inference(BaseModel):
     entry_id: str
     conversation: str
     summary: Optional[str]
+    summary_chunk: Optional[str]
     question: Optional[str]
     answer: Optional[str]
+    language: Optional[str]
 
     @classmethod
     def local(
@@ -23,16 +25,20 @@ class Inference(BaseModel):
         entry_id: str,
         conversation: str,
         summary: Optional[str],
+        summary_chunk: Optional[str],
         question: Optional[str],
         answer: Optional[str],
+        language: Optional[str],
     ):
         return cls(
             version=INFERENCE_VERSION,
             entry_id=entry_id,
             conversation=conversation,
             summary=summary,
+            summary_chunk=summary_chunk,
             question=question,
             answer=answer,
+            language=language,
         )
 
     @classmethod
@@ -48,6 +54,10 @@ class Inference(BaseModel):
                 dict=kwargs, key="conversation", type=str
             ),
             summary=sql_value_to_typed_value(dict=kwargs, key="summary", type=str),
+            summary_chunk=sql_value_to_typed_value(
+                dict=kwargs, key="summary_chunk", type=str
+            ),
             question=sql_value_to_typed_value(dict=kwargs, key="question", type=str),
             answer=sql_value_to_typed_value(dict=kwargs, key="answer", type=str),
+            language=sql_value_to_typed_value(dict=kwargs, key="language", type=str),
         )
