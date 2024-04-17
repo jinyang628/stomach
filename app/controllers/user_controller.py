@@ -21,7 +21,15 @@ class UserController:
         router = self.router
 
         @router.get("/validate/{api_key}")
-        async def validate(api_key: str):
+        async def validate(api_key: str) -> JSONResponse:
+            """Validates the API Key.
+
+            Args:
+                api_key (str): The API Key to be validated.
+
+            Returns:
+                JSONResponse: The response indicating whether the API Key is valid or not that should be passed back to Fingers.
+            """
             try:
                 is_valid_api_key: bool = self.service.validate_api_key(api_key=api_key)
                 if not is_valid_api_key:
@@ -37,6 +45,15 @@ class UserController:
                 return JSONResponse(status_code=500, content={"Error": str(e)})
 
     async def increment_usage(self, api_key: str, token_sum: int) -> bool:
+        """Increments the usage for the API Key in the user table.
+
+        Args:
+            api_key (str): The API Key for which the usage is to be incremented.
+            token_sum (int): The number of tokens to increment the usage by.
+            
+        Returns:
+            bool: A boolean indicating whether the usage was successfully incremented or not.
+        """
         try:
             is_usage_incremented: bool = self.service.increment_usage(
                 api_key=api_key, token_sum=token_sum

@@ -186,6 +186,15 @@ class EntryService:
             raise e
 
     async def post(self, data: list[EntryDbInput], return_column: str) -> list[Any]:
+        """Inserts the entries into the entry table.
+
+        Args:
+            data (list[EntryDbInput]): The list of entries to be inserted.
+            return_column (str): The column value to return after insertion as verification/identification.
+
+        Returns:
+            list[Any]: The list of column values returned upon successful insertion.
+        """
         entry_store = EntryObjectStore()
         entry_lst: list[Entry] = []
         for element in data:
