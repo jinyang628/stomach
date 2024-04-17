@@ -50,7 +50,7 @@ class UserController:
         Args:
             api_key (str): The API Key for which the usage is to be incremented.
             token_sum (int): The number of tokens to increment the usage by.
-            
+
         Returns:
             bool: A boolean indicating whether the usage was successfully incremented or not.
         """

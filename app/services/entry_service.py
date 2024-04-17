@@ -213,7 +213,7 @@ class EntryService:
         """Sends a POST request to the Brain for inference and
         returns a dictionary containing the results of the respective
         tasks chosen.
-        
+
         Args:
             data (InferenceInput): The entry to be sent for inference
         """
@@ -225,8 +225,8 @@ class EntryService:
 
             data_dict = data.model_dump()
 
-            # Make a POST request to the Brain repo, set a generous timeout of 60 seconds
-            async with httpx.AsyncClient(timeout=100.0) as client:
+            # Make a POST request to the Brain repo, set a generous timeout of 5 minutes
+            async with httpx.AsyncClient(timeout=300.0) as client:
                 response = await client.post(url, json=data_dict)
                 if response.status_code != 200:
                     log.error(
@@ -414,7 +414,9 @@ class EntryService:
                         entry_id=entry_id,
                         conversation=json.dumps(conversation),
                         summary=json.dumps(result.summary),
-                        summary_chunk=json.dumps(result.practice[i].get("summary_chunk")),
+                        summary_chunk=json.dumps(
+                            result.practice[i].get("summary_chunk")
+                        ),
                         question=json.dumps(result.practice[i].get("question")),
                         answer=json.dumps(result.practice[i].get("answer")),
                         # Even though language is just a generic string, we do json.dumps to keep the format consistent
