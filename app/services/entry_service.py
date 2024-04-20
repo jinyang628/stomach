@@ -60,8 +60,11 @@ class EntryService:
                     "Error posting infer request to BRAIN in entry_service.py: %s",
                     str(e),
                 )
-                raise PipelineError(message=str(e)) from e
+                raise e
             except Exception as e:
+                log.error(
+                    "Unexpected error while posting infer request to BRAIN in entry_service.py: %s",
+                )
                 raise e
 
             # Only post to entry db/increment usage if inference is successful
