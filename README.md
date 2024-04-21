@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ### Start the server
 
 ```
-uvicorn app.main:app --reload --port 8080
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 ```
 
 ### Install turso CLI
