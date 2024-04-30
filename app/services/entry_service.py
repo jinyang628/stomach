@@ -344,6 +344,9 @@ class EntryService:
             elif content.get("content_type") == "execution_output":
                 # Execution Output messages are what ChatGPT runs on its own server, not important for the conversation
                 continue
+            elif content.get("content_type") == "model_editable_context":
+                # Not useful content 
+                continue
             else:
                 raise ValueError(
                     "Unforseen content_type found in content. Please review the extraction strategy."
