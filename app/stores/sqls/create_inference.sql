@@ -16,11 +16,12 @@ CREATE TABLE inference (
     summary TEXT,
     summary_chunk TEXT,
     question TEXT,
-    answer TEXT,
+    half_completed_code TEXT,
+    fully_completed_code TEXT,
     language TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, conversation, summary, summary_chunk, question, answer, language),
+    UNIQUE(version, entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language),
     CHECK(version <> ''),
     CHECK(entry_id <> ''),
     CHECK(conversation <> '')
@@ -40,7 +41,8 @@ VALUES
             'summary', NEW.summary,
             'summary_chunk', NEW.summary_chunk,
             'question', NEW.question,
-            'answer', NEW.answer,
+            'half_completed_code', NEW.half_completed_code,
+            'fully_completed_code', NEW.fully_completed_code,
             'language', NEW.language
         ),
         'INSERT'
@@ -63,7 +65,8 @@ VALUES
             'summary', NEW.summary,
             'summary_chunk', NEW.summary_chunk,
             'question', NEW.question,
-            'answer', NEW.answer,
+            'half_completed_code', NEW.half_completed_code,
+            'fully_completed_code', NEW.fully_completed_code,
             'language', NEW.language
         ),
         'UPDATE'
@@ -92,7 +95,8 @@ VALUES
             'summary', OLD.summary,
             'summary_chunk', OLD.summary_chunk,
             'question', OLD.question,
-            'answer', OLD.answer,
+            'half_completed_code', OLD.half_completed_code,
+            'fully_completed_code', OLD.fully_completed_code,
             'language', OLD.language
         ),
         'DELETE'

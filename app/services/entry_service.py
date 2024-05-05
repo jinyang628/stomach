@@ -95,7 +95,6 @@ class EntryService:
                     result=result,
                 )
             )
-
             try:
                 await InferenceService().post(
                     data=inference_db_input, return_column="id"
@@ -112,7 +111,7 @@ class EntryService:
                     str(e),
                 )
                 raise e
-
+            print(result)
             return result
         except HTTPException as e:
             log.error("Error in entry_service.py: %s", str(e))
@@ -424,7 +423,8 @@ class EntryService:
                             result.practice[i].get("summary_chunk")
                         ),
                         question=json.dumps(result.practice[i].get("question")),
-                        answer=json.dumps(result.practice[i].get("answer")),
+                        half_completed_code=json.dumps(result.practice[i].get("half_completed_code")),
+                        fully_completed_code=json.dumps(result.practice[i].get("fully_completed_code")),
                         # Even though language is just a generic string, we do json.dumps to keep the format consistent
                         language=json.dumps(result.practice[i].get("language")),
                     )

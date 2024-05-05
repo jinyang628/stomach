@@ -29,7 +29,8 @@ class InferenceService:
                 summary=element.summary,
                 summary_chunk=element.summary_chunk,
                 question=element.question,
-                answer=element.answer,
+                half_completed_code=element.half_completed_code,
+                fully_completed_code=element.fully_completed_code,
                 language=element.language,
             )
             inference_lst.append(inference)

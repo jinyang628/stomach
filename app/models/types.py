@@ -23,7 +23,8 @@ class InferenceDbInput(BaseModel):
     summary: Optional[str]
     summary_chunk: Optional[str]
     question: Optional[str]
-    answer: Optional[str]
+    half_completed_code: Optional[str]
+    fully_completed_code: Optional[str]
     language: Optional[str]
 
 

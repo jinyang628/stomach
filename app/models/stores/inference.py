@@ -16,7 +16,8 @@ class Inference(BaseModel):
     summary: Optional[str]
     summary_chunk: Optional[str]
     question: Optional[str]
-    answer: Optional[str]
+    half_completed_code: Optional[str]
+    fully_completed_code: Optional[str]
     language: Optional[str]
 
     @classmethod
@@ -27,7 +28,8 @@ class Inference(BaseModel):
         summary: Optional[str],
         summary_chunk: Optional[str],
         question: Optional[str],
-        answer: Optional[str],
+        half_completed_code: Optional[str],
+        fully_completed_code: Optional[str],
         language: Optional[str],
     ):
         return cls(
@@ -37,7 +39,8 @@ class Inference(BaseModel):
             summary=summary,
             summary_chunk=summary_chunk,
             question=question,
-            answer=answer,
+            half_completed_code=half_completed_code,
+            fully_completed_code=fully_completed_code,
             language=language,
         )
 
@@ -58,6 +61,11 @@ class Inference(BaseModel):
                 dict=kwargs, key="summary_chunk", type=str
             ),
             question=sql_value_to_typed_value(dict=kwargs, key="question", type=str),
-            answer=sql_value_to_typed_value(dict=kwargs, key="answer", type=str),
+            half_completed_code=sql_value_to_typed_value(
+                dict=kwargs, key="half_completed_code", type=str
+            ),
+            fully_completed_code=sql_value_to_typed_value(
+                dict=kwargs, key="fully_completed_code", type=str
+            ),
             language=sql_value_to_typed_value(dict=kwargs, key="language", type=str),
         )

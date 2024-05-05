@@ -10,9 +10,7 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    obj_store = ObjectStore(table_name="inference")
-    obj_store.execute(
-        sql="""
+    sql = """
 CREATE TRIGGER inference_delete
 AFTER
     DELETE ON inference FOR EACH ROW BEGIN
@@ -26,14 +24,18 @@ VALUES
             'summary', OLD.summary,
             'summary_chunk', OLD.summary_chunk,
             'question', OLD.question,
-            'answer', OLD.answer,
+            'half_completed_code', OLD.half_completed_code,
+            'fully_completed_code', OLD.fully_completed_code,
             'language', OLD.language
         ),
         'DELETE'
     );
 
 END;
-"""
+    """
+    obj_store = ObjectStore(table_name="inference")
+    obj_store.execute(
+        sql=sql
     )
 
 
