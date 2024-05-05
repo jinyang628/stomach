@@ -2,9 +2,7 @@
 
 import logging
 
-from app.models.stores.user import User
 from app.stores.base.object import ObjectStore
-from app.stores.user import UserObjectStore
 
 log = logging.getLogger(__name__)
 
