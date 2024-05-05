@@ -36,7 +36,8 @@ async def test_post_success(mock_inference_controller, mock_inference_service):
             summary="You should use lower case",
             summary_chunk="lower case",
             question="test question",
-            answer="test answer",
+            half_completed_code="test code",
+            fully_completed_code="test code",
             language="en",
         )
     ]

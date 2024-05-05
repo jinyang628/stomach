@@ -23,7 +23,8 @@ async def test_post_success():
             summary="Test summary",
             summary_chunk="Test summary chunk",
             question="Test question",
-            answer="Test answer",
+            half_completed_code="Test half completed code",
+            fully_completed_code="Test fully completed code",
             language="en",
         )
     ]
@@ -56,7 +57,8 @@ async def test_post_failure():
             summary="Test summary",
             summary_chunk="Test summary chunk",
             question="Test question",
-            answer="Test answer",
+            half_completed_code="Test half completed code",
+            fully_completed_code="Test fully completed code",
             language="en",
         )
     ]

@@ -438,7 +438,8 @@ class EntryService:
                 summary=json.dumps(result.summary),
                 summary_chunk=None,
                 question=None,
-                answer=None,
+                half_completed_code=None,
+                fully_completed_code=None,
                 language=None,
             )
         ]

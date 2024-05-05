@@ -251,7 +251,7 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
         assert inference_db_input_lst[i].fully_completed_code == json.dumps(
             result.practice[i].get("fully_completed_code")
         )
-        assert inference_db_input_lst[i].language == result.practice[i].get("language")
+        assert inference_db_input_lst[i].language == json.dumps(result.practice[i].get("language"))
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [
