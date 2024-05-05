@@ -119,8 +119,9 @@ async def test_infer_successful(inference_input):
             {
                 "summary_chunk": "summary_chunk",
                 "language": "python",
-                "question": "question_code",
-                "answer": "answer_code",
+                "question": "question_prompt",
+                "half_completed_code": "answer_code",
+                "fully_completed_code": "answer_code"
             }
         ],
         "token_sum": 50000,
@@ -189,8 +190,9 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
                 {
                     "summary_chunk": "summary_chunk",
                     "language": "python",
-                    "question": "question_code",
-                    "answer": "answer_code",
+                    "question": "question_prompt",
+                    "half_completed_code": "answer_code",
+                    "fully_completed_code": "answer_code",
                 }
             ],
             token_sum=50000,
@@ -214,8 +216,9 @@ PREPARE_INFERENCE_DB_INPUT_VALID_DATA = [
                 {
                     "summary_chunk": "summary_chunk",
                     "language": "python",
-                    "question": "question_code",
-                    "answer": "answer_code",
+                    "question": "question_prompt",
+                    "half_completed_code": "answer_code",
+                    "fully_completed_code": "answer_code",
                 }
             ],
             token_sum=50000,
@@ -242,9 +245,13 @@ def test_prepare_inference_db_input(entry_id, conversation, result):
         assert inference_db_input_lst[i].question == json.dumps(
             result.practice[i].get("question")
         )
-        assert inference_db_input_lst[i].answer == json.dumps(
-            result.practice[i].get("answer")
+        assert inference_db_input_lst[i].half_completed_code == json.dumps(
+            result.practice[i].get("half_completed_code")
         )
+        assert inference_db_input_lst[i].fully_completed_code == json.dumps(
+            result.practice[i].get("fully_completed_code")
+        )
+        assert inference_db_input_lst[i].language == result.practice[i].get("language")
 
 
 PREPARE_INFERENCE_DB_INPUT_INVALID_DATA = [

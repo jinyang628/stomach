@@ -12,40 +12,42 @@ INFERENCE_LOCAL_VALID_DATA = [
         "Test summary 1",
         "Test summary chunk 1",
         "Test question 1",
-        "Test answer 1",
+        "Test half completed code 1",
+        "Test fully completed code 1",
         "Test language 1"
     ),
-    ("entry_id_2", "Test conversation 2", None, None, None, None, None),
+    ("entry_id_2", "Test conversation 2", None, None, None, None, None, None),
 ]
 
 
 @pytest.mark.parametrize(
-    "entry_id, conversation, summary, summary_chunk, question, answer, language", INFERENCE_LOCAL_VALID_DATA
+    "entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language", INFERENCE_LOCAL_VALID_DATA
 )
-def test_inference_local_valid(entry_id, conversation, summary, summary_chunk, question, answer, language):
-    inference = Inference.local(entry_id, conversation, summary, summary_chunk, question, answer, language)
+def test_inference_local_valid(entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language):
+    inference = Inference.local(entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language)
     assert inference.version == INFERENCE_VERSION
     assert inference.entry_id == entry_id
     assert inference.conversation == conversation
     assert inference.summary == summary
     assert inference.summary_chunk == summary_chunk
     assert inference.question == question
-    assert inference.answer == answer
+    assert inference.half_completed_code == half_completed_code
+    assert inference.fully_completed_code == fully_completed_code
     assert inference.language == language
 
 
 INFERENCE_LOCAL_INVALID_DATA = [
-    (None, "Test conversation", None, None, None, None, None),  # Missing entry_id
-    ("entry_id", None, None, None, None, None, None),  # Missing conversation
+    (None, "Test conversation", None, None, None, None, None, None),  # Missing entry_id
+    ("entry_id", None, None, None, None, None, None, None),  # Missing conversation
 ]
 
 
 @pytest.mark.parametrize(
-    "entry_id, conversation, summary, summary_chunk, question, answer, language", INFERENCE_LOCAL_INVALID_DATA
+    "entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language", INFERENCE_LOCAL_INVALID_DATA
 )
-def test_inference_local_invalid(entry_id, conversation, summary, summary_chunk, question, answer, language):
+def test_inference_local_invalid(entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language):
     with pytest.raises(ValueError):  # Or the specific error your code raises
-        Inference.local(entry_id, conversation, summary, summary_chunk, question, answer, language)
+        Inference.local(entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language)
 
 
 INFERENCE_REMOTE_VALID_DATA = [
@@ -57,7 +59,8 @@ INFERENCE_REMOTE_VALID_DATA = [
         "summary": "Test summary 1",
         "summary_chunk": "Test summary chunk 1",
         "question": "Test question 1",
-        "answer": "Test answer 1",
+        "half_completed_code": "Test answer 1",
+        "fully_completed_code": "Test language 1",
         "language": "Test language 1"
     },
     {
@@ -67,8 +70,8 @@ INFERENCE_REMOTE_VALID_DATA = [
         "conversation": "Test conversation 2",
         "summary": None,
         "summary_chunk": None,
-        "question": None,
-        "answer": None,
+        "half_completed_code": "None",
+        "fully_completed_code": "Test language 1",
         "language": None
     },
 ]
