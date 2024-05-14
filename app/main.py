@@ -45,8 +45,3 @@ def get_user_controller_router():
 
 app.include_router(get_entry_controller_router(), tags=["entries"], prefix="/api/entry")
 app.include_router(get_user_controller_router(), tags=["user"], prefix="/api/user")
-
-@app.get("/.well-known/pki-validation/2E191BD31FBCBFE86BD88D95CA812D4E.txt")
-async def serve_ssl_validation_file(filename: str):
-    file_path = os.path("./2E191BD31FBCBFE86BD88D95CA812D4E.txt")
-    return FileResponse(path=file_path)
