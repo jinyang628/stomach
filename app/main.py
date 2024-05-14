@@ -2,24 +2,11 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 
 from app.controllers.entry_controller import EntryController
 from app.controllers.user_controller import UserController
 from app.services.entry_service import EntryService
 from app.services.user_service import UserService
-
-# Check operating system
-if os.name == "posix":
-    # macOS, Linux, or Unix
-    from dotenv import dotenv_values
-
-    config = dotenv_values(".env")
-else:
-    # Windows or Windows WSL
-    from dotenv import load_dotenv
-
-    load_dotenv(".env")
 
 app = FastAPI()
 
