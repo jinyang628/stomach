@@ -111,7 +111,6 @@ class EntryService:
                     str(e),
                 )
                 raise e
-            print(result)
             return result
         except HTTPException as e:
             log.error("Error in entry_service.py: %s", str(e))
