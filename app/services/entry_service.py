@@ -273,7 +273,7 @@ class EntryService:
         Raises:
             ValueError: If the expected tags are not found in the HMTL content
         """
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(url)
         response.raise_for_status()
 
