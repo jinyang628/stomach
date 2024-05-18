@@ -95,6 +95,7 @@ class EntryService:
                     result=result,
                 )
             )
+
             try:
                 await InferenceService().post(
                     data=inference_db_input, return_column="id"
@@ -111,6 +112,8 @@ class EntryService:
                     str(e),
                 )
                 raise e
+            
+            log.info(f"Result to be returned to fingers: {result}")
             return result
         except HTTPException as e:
             log.error("Error in entry_service.py: %s", str(e))
@@ -432,7 +435,7 @@ class EntryService:
                 )
             return inference_db_input_lst
 
-        summary_lst: list[dict[str, Any]] = result.practice
+        summary_lst: list[dict[str, Any]] = result.summary
         if summary_lst:
             for i in range(len(summary_lst)):
                 inference_db_input_lst.append(
