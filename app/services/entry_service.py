@@ -395,7 +395,10 @@ class EntryService:
         return conversation.jsonify()
 
     def prepare_inference_db_input_lst(
-        self, entry_id: str, conversation: dict[str, str], result: BrainResponse
+        self, 
+        entry_id: str, 
+        conversation: dict[str, str], 
+        result: BrainResponse
     ) -> list[InferenceDbInput]:
         """Prepares the input to be stored in the inference table.
 
@@ -407,12 +410,11 @@ class EntryService:
         Returns:
             list[InferenceDbInput]: _description_
         """
+        inference_db_input_lst: list[InferenceDbInput] = []
 
-        practice_lst: list[dict[str, Any]] = result.practice
+        practice_lst: list[dict[str, str]] = result.practice
         if practice_lst:
-            practice_length: int = len(practice_lst)
-            inference_db_input_lst: list[InferenceDbInput] = []
-            for i in range(practice_length):
+            for i in range(len(practice_lst)):
                 inference_db_input_lst.append(
                     InferenceDbInput(
                         entry_id=entry_id,
@@ -430,15 +432,21 @@ class EntryService:
                 )
             return inference_db_input_lst
 
-        return [
-            InferenceDbInput(
-                entry_id=entry_id,
-                conversation=json.dumps(conversation),
-                summary=json.dumps(result.summary),
-                summary_chunk=None,
-                question=None,
-                half_completed_code=None,
-                fully_completed_code=None,
-                language=None,
-            )
-        ]
+        summary_lst: list[dict[str, Any]] = result.practice
+        if summary_lst:
+            for i in range(len(summary_lst)):
+                inference_db_input_lst.append(
+                    InferenceDbInput(
+                        entry_id=entry_id,
+                        conversation=json.dumps(conversation),
+                        summary=json.dumps(result.summary[i]),
+                        summary_chunk=None,
+                        question=None,
+                        half_completed_code=None,
+                        fully_completed_code=None,
+                        language=None
+                    )
+                )
+            return inference_db_input_lst
+            
+        return []

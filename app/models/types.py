@@ -41,7 +41,7 @@ class InferenceInput(BaseModel):
 
 
 class BrainResponse(BaseModel):
-    summary: Optional[dict[str, Any]]
+    summary: Optional[list[dict[str, Any]]]
     practice: Optional[list[dict[str, str]]]
     token_sum: int
 
