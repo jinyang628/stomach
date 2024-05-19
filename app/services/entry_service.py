@@ -349,6 +349,12 @@ class EntryService:
             elif content.get("content_type") == "model_editable_context":
                 # Not useful content 
                 continue
+            elif content.get("content_type") == "tether_browsing_display":
+                # Not useful content 
+                continue
+            elif content.get("content_type") == "tether_quote":
+                # Not useful content
+                continue
             else:
                 raise ValueError(
                     "Unforseen content_type found in content. Please review the extraction strategy."
