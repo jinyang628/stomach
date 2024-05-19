@@ -38,89 +38,80 @@ class EntryService:
     ###
     async def start_entry_process(self, input: EntryDbInput) -> BrainResponse:
         """Main function that controls the overall flow of the business logic in the pre-inference part of the pipeline."""
+        is_within_limit: bool = await self.is_within_limit(api_key=input.api_key)
+        if not is_within_limit:
+            log.error(f"Usage limit exceeded {USAGE_LIMIT}")
+            raise UsageLimitExceededError(
+                message=f"Usage limit exceeded {USAGE_LIMIT}"
+            )
+        jsonified_conversation: dict[str, str] = await self.extract_url_content(
+            url=input.url
+        )
+        inference_input = InferenceInput(
+            conversation=jsonified_conversation, tasks=input.tasks
+        )
         try:
-            is_within_limit: bool = await self.is_within_limit(api_key=input.api_key)
-            if not is_within_limit:
-                raise UsageLimitExceededError(
-                    message=f"Usage limit exceeded {USAGE_LIMIT}"
-                )
-
-            jsonified_conversation: dict[str, str] = await self.extract_url_content(
-                url=input.url
+            result: BrainResponse = await self.infer(data=inference_input)
+        except PipelineError as e:
+            log.error(
+                "Error posting infer request to BRAIN in entry_service.py: %s",
+                str(e),
             )
-
-            inference_input = InferenceInput(
-                conversation=jsonified_conversation, tasks=input.tasks
-            )
-
-            try:
-                result: BrainResponse = await self.infer(data=inference_input)
-            except PipelineError as e:
-                log.error(
-                    "Error posting infer request to BRAIN in entry_service.py: %s",
-                    str(e),
-                )
-                raise e
-            except Exception as e:
-                log.error(
-                    "Unexpected error while posting infer request to BRAIN in entry_service.py: %s",
-                )
-                raise e
-
-            # Only post to entry db/increment usage if inference is successful
-            try:
-                log.info(
-                    f"Token length: {result.token_sum} has been consumed by the user"
-                )
-                entry_id: str = await self.post_entry_and_increment_usage(
-                    input=input, token_sum=result.token_sum
-                )
-            except DatabaseError as e:
-                log.error(
-                    "Error posting to entry db/incrementing usage in entry_service.py: %s",
-                    str(e),
-                )
-                raise e
-            except Exception as e:
-                log.error(
-                    "Unexpected error while posting to entry db/incrementing usage in entry_service.py: %s",
-                    str(e),
-                )
-                raise e
-
-            inference_db_input: list[InferenceDbInput] = (
-                self.prepare_inference_db_input_lst(
-                    entry_id=entry_id,
-                    conversation=jsonified_conversation,
-                    result=result,
-                )
-            )
-
-            try:
-                await InferenceService().post(
-                    data=inference_db_input, return_column="id"
-                )
-            except DatabaseError as e:
-                log.error(
-                    "Error posting to inference db in entry_service.py: %s",
-                    str(e),
-                )
-                raise e
-            except Exception as e:
-                log.error(
-                    "Unexpected error while posting to inference db in entry_service.py: %s",
-                    str(e),
-                )
-                raise e
-            
-            log.info(f"Result to be returned to fingers: {result}")
-            return result
-        except HTTPException as e:
-            log.error("Error in entry_service.py: %s", str(e))
             raise e
         except Exception as e:
-            log.error("Error in entry_service.py: %s", str(e))
+            log.error(
+                "Unexpected error while posting infer request to BRAIN in entry_service.py: %s",
+            )
             raise e
+
+        # Only post to entry db/increment usage if inference is successful
+        try:
+            log.info(
+                f"Token length: {result.token_sum} has been consumed by the user"
+            )
+            entry_id: str = await self.post_entry_and_increment_usage(
+                input=input, token_sum=result.token_sum
+            )
+        except DatabaseError as e:
+            log.error(
+                "Error posting to entry db/incrementing usage in entry_service.py: %s",
+                str(e),
+            )
+            raise e
+        except Exception as e:
+            log.error(
+                "Unexpected error while posting to entry db/incrementing usage in entry_service.py: %s",
+                str(e),
+            )
+            raise e
+
+        inference_db_input: list[InferenceDbInput] = (
+            self.prepare_inference_db_input_lst(
+                entry_id=entry_id,
+                conversation=jsonified_conversation,
+                result=result,
+            )
+        )
+
+        try:
+            await InferenceService().post(
+                data=inference_db_input, return_column="id"
+            )
+        except DatabaseError as e:
+            log.error(
+                "Error posting to inference db in entry_service.py: %s",
+                str(e),
+            )
+            raise e
+        except Exception as e:
+            log.error(
+                "Unexpected error while posting to inference db in entry_service.py: %s",
+                str(e),
+            )
+            raise e
+        
+        log.info(f"Result to be returned to fingers: {result}")
+        return result
 
     async def post_entry_and_increment_usage(
         self, input: EntryDbInput, token_sum: int
