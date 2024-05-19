@@ -231,6 +231,7 @@ class EntryService:
 
             # Make a POST request to the Brain repo, set a generous timeout of 5 minutes
             async with httpx.AsyncClient(timeout=300.0) as client:
+                log.info(f"Data sent to Brain: {data_dict}")
                 response = await client.post(url, json=data_dict)
                 if response.status_code != 200:
                     log.error(
