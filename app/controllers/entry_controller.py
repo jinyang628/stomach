@@ -26,7 +26,7 @@ class EntryController:
 
         @router.post("/web")
         async def web_start(input: EntryDbInput) -> JSONResponse:
-            """Marks the start of the pipeline when the user submits a ShareGPT link.
+            """Marks the start of the pipeline when the user submits a ShareGPT link from web.
 
             Args:
                 input (EntryDbInput): The input data to be stored in the entry table
