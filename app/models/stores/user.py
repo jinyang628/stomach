@@ -1,15 +1,28 @@
 from datetime import datetime
-from typing import Optional
 
-from pydantic import BaseModel
-
+from app.models.stores.base import BaseObject
 from app.models.utils import sql_value_to_typed_value
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import declarative_base 
+from sqlalchemy.sql import func
+
+Base = declarative_base()
 
 USER_VERSION: int = 1
 
+class UserORM(Base):
+    __tablename__ = "user"
+    
+    id = Column(String, primary_key=True)
+    version = Column(Integer, nullable=False)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    api_key = Column(String, nullable=False)
+    usage = Column(Integer, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())  # Automatically use the current timestamp of the database server upon creation
+    updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())  # Automatically use the current timestamp of the database server upon creation and update
 
-class User(BaseModel):
-    id: Optional[int] = None
+class User(BaseObject):
     version: int
     name: str
     email: str
@@ -25,11 +38,12 @@ class User(BaseModel):
         email: str,
         api_key: str,
     ):
-        return cls(
+        return User(
+            id=User.generate_id(version=USER_VERSION, name=name, email=email, api_key=api_key),
             version=USER_VERSION,
             name=name,
             email=email,
-            api_key=api_key,
+            api_key=api_key
         )
 
     @classmethod
@@ -38,7 +52,7 @@ class User(BaseModel):
         **kwargs,
     ):
         return cls(
-            id=sql_value_to_typed_value(dict=kwargs, key="id", type=int),
+            id=sql_value_to_typed_value(dict=kwargs, key="id", type=str),
             version=sql_value_to_typed_value(dict=kwargs, key="version", type=int),
             name=sql_value_to_typed_value(dict=kwargs, key="name", type=str),
             email=sql_value_to_typed_value(dict=kwargs, key="email", type=str),

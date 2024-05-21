@@ -1,17 +1,26 @@
-from typing import Optional
-
-from pydantic import BaseModel
-
+from app.models.stores.base import BaseObject
 from app.models.utils import generate_identifier, sql_value_to_typed_value
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import declarative_base 
+from sqlalchemy.sql import func
+
+Base = declarative_base()
 
 # Update this version accordingly
 ENTRY_VERSION: int = 1
 
-
-class Entry(BaseModel):
-    id: Optional[int] = None
+class EntryORM(Base):
+    __tablename__ = "entry"
+    
+    id = Column(String, primary_key=True)
+    version = Column(Integer, nullable=False)
+    api_key = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())  # Automatically use the current timestamp of the database server upon creation
+    updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())  # Automatically use the current timestamp of the database server upon creation and update
+    
+class Entry(BaseObject):
     version: int
-    entry_id: str
     api_key: str
     url: str
 
@@ -20,16 +29,16 @@ class Entry(BaseModel):
         cls,
         api_key: str,
         url: str,
-        entry_id: Optional[str] = None,
     ):
-
-        return cls(
+        return Entry(
+            id=generate_identifier(Entry.generate_id(
+                version=ENTRY_VERSION, 
+                api_key=api_key, 
+                url=url,
+            )),
             version=ENTRY_VERSION,
-            entry_id=(
-                entry_id if entry_id else generate_identifier(cls.__name__.lower())
-            ),
             api_key=api_key,
-            url=url,
+            url=url
         )
 
     @classmethod
@@ -38,7 +47,7 @@ class Entry(BaseModel):
         **kwargs,
     ):
         return cls(
-            id=sql_value_to_typed_value(dict=kwargs, key="id", type=int),
+            id=sql_value_to_typed_value(dict=kwargs, key="id", type=str),
             version=sql_value_to_typed_value(dict=kwargs, key="version", type=int),
             entry_id=sql_value_to_typed_value(dict=kwargs, key="entry_id", type=str),
             api_key=sql_value_to_typed_value(dict=kwargs, key="api_key", type=str),

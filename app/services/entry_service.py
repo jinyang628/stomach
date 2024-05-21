@@ -6,9 +6,10 @@ from typing import Any, List
 
 import httpx
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from fastapi import HTTPException
 
+from app.connectors.orm import Orm
 from app.controllers.user_controller import UserController
 from app.exceptions.exception import (DatabaseError, PipelineError,
                                       UsageLimitExceededError)
@@ -21,15 +22,14 @@ from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
                               InferenceInput)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
-from app.stores.entry import EntryObjectStore
 from app.stores.user import USAGE_LIMIT
 
 log = logging.getLogger(__name__)
 
-load_dotenv()
-
-BRAIN_API_URL: str = os.getenv("BRAIN_API_URL")
-
+load_dotenv(find_dotenv(filename=".env"))
+BRAIN_API_URL = os.environ.get("BRAIN_API_URL")
+TURSO_DB_URL = os.environ.get("TURSO_DB_URL")
+TURSO_DB_AUTH_TOKEN = os.environ.get("TURSO_DB_AUTH_TOKEN")
 
 class EntryService:
 
@@ -94,9 +94,7 @@ class EntryService:
         )
 
         try:
-            await InferenceService().post(
-                data=inference_db_input, return_column="id"
-            )
+            await InferenceService().post(data=inference_db_input)
         except DatabaseError as e:
             log.error(
                 "Error posting to inference db in entry_service.py: %s",
@@ -190,16 +188,16 @@ class EntryService:
         Returns:
             list[Any]: The list of column values returned upon successful insertion.
         """
-        entry_store = EntryObjectStore()
         entry_lst: list[Entry] = []
+        id_lst: list[str] = []
         for element in data:
             entry = Entry.local(api_key=element.api_key, url=element.url)
             entry_lst.append(entry)
-        identifier_lst: list[Any] = entry_store.insert(
-            entries=entry_lst, return_column=return_column
-        )
-
-        return identifier_lst
+            id_lst.append(entry.id)
+            
+        orm = Orm(url=TURSO_DB_URL, auth_token=TURSO_DB_AUTH_TOKEN)
+        orm.insert(models=entry_lst)
+        return id_lst
 
     ###
     ### API logic

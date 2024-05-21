@@ -19,12 +19,7 @@ VALUES
             'version', OLD.version,
             'entry_id', OLD.entry_id,
             'conversation', OLD.conversation,
-            'summary', OLD.summary,
-            'summary_chunk', OLD.summary_chunk,
-            'question', OLD.question,
-            'half_completed_code', OLD.half_completed_code,
-            'fully_completed_code', OLD.fully_completed_code,
-            'language', OLD.language
+            'result', OLD.result
         ),
         'DELETE'
     );

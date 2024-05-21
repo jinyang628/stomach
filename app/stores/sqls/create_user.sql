@@ -9,7 +9,7 @@ DROP TRIGGER IF EXISTS user_update;
 DROP TRIGGER IF EXISTS user_delete; 
 
 CREATE TABLE user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     version INTEGER NOT NULL,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
@@ -37,7 +37,8 @@ VALUES
             'version', NEW.version,
             'name', NEW.name,
             'email', NEW.email,
-            'api_key', NEW.api_key
+            'api_key', NEW.api_key,
+            'usage', NEW.usage
         ),
         'INSERT'
     );

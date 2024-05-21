@@ -9,22 +9,18 @@ DROP TRIGGER IF EXISTS inference_update;
 DROP TRIGGER IF EXISTS inference_delete;
 
 CREATE TABLE inference (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     version INTEGER NOT NULL,
     entry_id TEXT NOT NULL,
     conversation TEXT NOT NULL,
-    summary TEXT,
-    summary_chunk TEXT,
-    question TEXT,
-    half_completed_code TEXT,
-    fully_completed_code TEXT,
-    language TEXT,
+    result TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(version, entry_id, conversation, summary, summary_chunk, question, half_completed_code, fully_completed_code, language),
+    UNIQUE(version, entry_id, conversation, result),
     CHECK(version <> ''),
     CHECK(entry_id <> ''),
-    CHECK(conversation <> '')
+    CHECK(conversation <> ''),
+    CHECK(result <> '')
 );
 
 CREATE TRIGGER inference_insert 
@@ -38,12 +34,7 @@ VALUES
             'version', NEW.version,
             'entry_id', NEW.entry_id,
             'conversation', NEW.conversation,
-            'summary', NEW.summary,
-            'summary_chunk', NEW.summary_chunk,
-            'question', NEW.question,
-            'half_completed_code', NEW.half_completed_code,
-            'fully_completed_code', NEW.fully_completed_code,
-            'language', NEW.language
+            'result', NEW.result
         ),
         'INSERT'
     );
@@ -62,12 +53,7 @@ VALUES
             'version', NEW.version,
             'entry_id', NEW.entry_id,
             'conversation', NEW.conversation,
-            'summary', NEW.summary,
-            'summary_chunk', NEW.summary_chunk,
-            'question', NEW.question,
-            'half_completed_code', NEW.half_completed_code,
-            'fully_completed_code', NEW.fully_completed_code,
-            'language', NEW.language
+            'result', NEW.result
         ),
         'UPDATE'
     );
@@ -92,12 +78,7 @@ VALUES
             'version', OLD.version,
             'entry_id', OLD.entry_id,
             'conversation', OLD.conversation,
-            'summary', OLD.summary,
-            'summary_chunk', OLD.summary_chunk,
-            'question', OLD.question,
-            'half_completed_code', OLD.half_completed_code,
-            'fully_completed_code', OLD.fully_completed_code,
-            'language', OLD.language
+            'result', OLD.result
         ),
         'DELETE'
     );

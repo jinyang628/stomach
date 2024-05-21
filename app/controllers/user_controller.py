@@ -44,7 +44,7 @@ class UserController:
                 log.error(f"Error: {str(e)} in UserController#setup_routes#validate")
                 return JSONResponse(status_code=500, content={"Error": str(e)})
 
-    async def increment_usage(self, api_key: str, token_sum: int) -> bool:
+    async def increment_usage(self, api_key: str, token_sum: int):
         """Increments the usage for the API Key in the user table.
 
         Args:
@@ -55,13 +55,7 @@ class UserController:
             bool: A boolean indicating whether the usage was successfully incremented or not.
         """
         try:
-            is_usage_incremented: bool = self.service.increment_usage(
-                api_key=api_key, token_sum=token_sum
-            )
-            if not is_usage_incremented:
-                log.error(f"Error incrementing usage for api_key: {api_key}")
-                raise DatabaseError(message=str(e)) from e
-            return is_usage_incremented
+            self.service.increment_usage(api_key=api_key, token_sum=token_sum)
         except DatabaseError as e:
             log.error(f"Database error: {str(e)} in UserController#increment_usage")
             raise e
