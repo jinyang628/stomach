@@ -95,18 +95,14 @@ class Orm:
         
         result: Type[DeclarativeMeta] = results[0]
         match result:
-            case _ if isinstance(result, Page):
-                return [FishPageObject.model_validate(page) for page in results]
-            case _ if isinstance(result, Chunk):
-                return [FishChunkObject.model_validate(chunk) for chunk in results]
-            case _ if isinstance(result, Result):
-                return [FishResultObject.model_validate(result) for result in results]
-            case _ if isinstance(result, Query):
-                return [FishQueryObject.model_validate(query) for query in results]
-            case _ if isinstance(result, Node):
-                return [FishNodeObject.model_validate(node) for node in results]
+            case _ if isinstance(result, EntryORM):
+                return [Entry.model_validate(entry) for entry in results]
+            case _ if isinstance(result, InferenceORM):
+                return [Inference.model_validate(inference) for inference in results]
+            case _ if isinstance(result, UserORM):
+                return [User.model_validate(user) for user in results]
             case _:
-                raise ValueError(f"Model type {type(result)} not supported")
+                raise ValueError(f"Model type {type(model)} not supported")
     
     def get_column(self, model: Type[DeclarativeMeta], column: str, filters: dict, is_and: bool = True, batch_size: int = 6500) -> list[Any]:
         """Fetches specific columns from the specified table based on the filters provided.

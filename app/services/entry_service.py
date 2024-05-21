@@ -22,7 +22,6 @@ from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
                               InferenceInput)
 from app.services.inference_service import InferenceService
 from app.services.user_service import UserService
-from app.stores.user import USAGE_LIMIT
 
 log = logging.getLogger(__name__)
 
