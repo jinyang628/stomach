@@ -10,7 +10,6 @@ from dotenv import find_dotenv, load_dotenv
 from fastapi import HTTPException
 
 from app.connectors.orm import Orm
-from app.controllers.user_controller import UserController
 from app.exceptions.exception import (DatabaseError, PipelineError,
                                       UsageLimitExceededError)
 from app.models.enum.shareGpt import ShareGpt
@@ -21,7 +20,7 @@ from app.models.stores.entry import Entry
 from app.models.types import (BrainResponse, EntryDbInput, InferenceDbInput,
                               InferenceInput)
 from app.services.inference_service import InferenceService
-from app.services.user_service import UserService
+from app.services.user_service import USAGE_LIMIT, UserService
 
 log = logging.getLogger(__name__)
 
@@ -124,7 +123,7 @@ class EntryService:
         """
         try:
             increment_usage_task = asyncio.create_task(
-                UserController(service=UserService()).increment_usage(
+               UserService().increment_usage(
                     api_key=input.api_key, token_sum=token_sum
                 )
             )
@@ -298,7 +297,8 @@ class EntryService:
 
         title: str = data.get("title")
         if not title:
-            raise ValueError("No title found in data")
+            log.error("No title found in data. Probably because the conversation is cut short by the user and the title is not set.")
+            title = "Chatlog"
 
         linear_conversation: List[dict[str, str]] = data.get("linear_conversation")
         if not linear_conversation:
@@ -404,45 +404,18 @@ class EntryService:
             entry_id (str): The foreign key of the entry table
             conversation (dict[str, str]): The conversation extracted from the ShareGPT url
             result (BrainResponse): The result of the inference
-
-        Returns:
-            list[InferenceDbInput]: _description_
         """
         inference_db_input_lst: list[InferenceDbInput] = []
 
-        practice_lst: list[dict[str, str]] = result.practice
-        if practice_lst:
-            for i in range(len(practice_lst)):
+        result_lst: list[dict[str, Any]] = result.result
+        print(result_lst)
+        if result_lst:
+            for i in range(len(result_lst)):
                 inference_db_input_lst.append(
                     InferenceDbInput(
                         entry_id=entry_id,
                         conversation=json.dumps(conversation),
-                        summary=json.dumps(result.summary),
-                        summary_chunk=json.dumps(
-                            result.practice[i].get("summary_chunk")
-                        ),
-                        question=json.dumps(result.practice[i].get("question")),
-                        half_completed_code=json.dumps(result.practice[i].get("half_completed_code")),
-                        fully_completed_code=json.dumps(result.practice[i].get("fully_completed_code")),
-                        # Even though language is just a generic string, we do json.dumps to keep the format consistent
-                        language=json.dumps(result.practice[i].get("language")),
-                    )
-                )
-            return inference_db_input_lst
-
-        summary_lst: list[dict[str, Any]] = result.summary
-        if summary_lst:
-            for i in range(len(summary_lst)):
-                inference_db_input_lst.append(
-                    InferenceDbInput(
-                        entry_id=entry_id,
-                        conversation=json.dumps(conversation),
-                        summary=json.dumps(result.summary[i]),
-                        summary_chunk=None,
-                        question=None,
-                        half_completed_code=None,
-                        fully_completed_code=None,
-                        language=None
+                        result=json.dumps(result.result[i]),
                     )
                 )
             return inference_db_input_lst

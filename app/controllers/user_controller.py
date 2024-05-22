@@ -43,22 +43,3 @@ class UserController:
             except Exception as e:
                 log.error(f"Error: {str(e)} in UserController#setup_routes#validate")
                 return JSONResponse(status_code=500, content={"Error": str(e)})
-
-    async def increment_usage(self, api_key: str, token_sum: int):
-        """Increments the usage for the API Key in the user table.
-
-        Args:
-            api_key (str): The API Key for which the usage is to be incremented.
-            token_sum (int): The number of tokens to increment the usage by.
-
-        Returns:
-            bool: A boolean indicating whether the usage was successfully incremented or not.
-        """
-        try:
-            self.service.increment_usage(api_key=api_key, token_sum=token_sum)
-        except DatabaseError as e:
-            log.error(f"Database error: {str(e)} in UserController#increment_usage")
-            raise e
-        except Exception as e:
-            log.error(f"Unexpected error while incrementing_usage: {str(e)}")
-            raise e

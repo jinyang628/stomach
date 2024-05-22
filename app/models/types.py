@@ -20,12 +20,7 @@ class InferenceDbInput(BaseModel):
     # The shape of the input data to be stored in the inference table
     entry_id: str
     conversation: str
-    summary: Optional[str]
-    summary_chunk: Optional[str]
-    question: Optional[str]
-    half_completed_code: Optional[str]
-    fully_completed_code: Optional[str]
-    language: Optional[str]
+    result: str
 
 
 ###
@@ -41,8 +36,7 @@ class InferenceInput(BaseModel):
 
 
 class BrainResponse(BaseModel):
-    summary: Optional[list[dict[str, Any]]]
-    practice: Optional[list[dict[str, str]]]
+    result: Optional[list[dict[str, Any]]]
     token_sum: int
 
     class Config:
@@ -52,6 +46,5 @@ class BrainResponse(BaseModel):
         """Converts important elements in the BrainResponse object to a dictionary that will be passed back to fingers for the user"""
 
         return {
-            "summary": self.summary,
-            "practice": self.practice,
+            "result": self.result,
         }

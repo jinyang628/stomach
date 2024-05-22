@@ -26,12 +26,7 @@ class InferenceService:
             inference = Inference.local(
                 entry_id=element.entry_id,
                 conversation=element.conversation,
-                summary=element.summary,
-                summary_chunk=element.summary_chunk,
-                question=element.question,
-                half_completed_code=element.half_completed_code,
-                fully_completed_code=element.fully_completed_code,
-                language=element.language,
+                result=element.result,
             )
             inference_lst.append(inference)
         try:

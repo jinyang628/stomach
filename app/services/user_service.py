@@ -53,7 +53,7 @@ class UserService:
             return False
         return True
 
-    def increment_usage(self, api_key: str, token_sum: int) -> bool:
+    async def increment_usage(self, api_key: str, token_sum: int) -> bool:
         """Increments the usage of the user in the user table
 
         Args:
@@ -73,7 +73,7 @@ class UserService:
             orm.update(
                 model=UserORM, 
                 filters={"api_key": api_key}, 
-                update={"usage": incremented_usage}
+                updates={"usage": incremented_usage}
             )
         except DatabaseError as e:
             log.error(f"Database error: {str(e)} in UserService#increment_usage")
