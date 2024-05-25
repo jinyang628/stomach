@@ -46,7 +46,8 @@ class EntryService:
             url=input.url
         )
         inference_input = InferenceInput(
-            conversation=jsonified_conversation, tasks=input.tasks
+            conversation=jsonified_conversation, 
+            content=input.content
         )
         try:
             result: BrainResponse = await self.infer(data=inference_input)
@@ -408,7 +409,6 @@ class EntryService:
         inference_db_input_lst: list[InferenceDbInput] = []
 
         result_lst: list[dict[str, Any]] = result.result
-        print(result_lst)
         if result_lst:
             for i in range(len(result_lst)):
                 inference_db_input_lst.append(

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -10,7 +10,7 @@ class EntryDbInput(BaseModel):
     # The shape of the input data to be stored in the entry table
     api_key: str
     url: str
-    tasks: List[str]
+    content: list[str]
 
     class Config:
         extra = "forbid"
@@ -29,7 +29,7 @@ class InferenceDbInput(BaseModel):
 class InferenceInput(BaseModel):
     # The input of the API made to Brain
     conversation: dict[str, Any]
-    tasks: List[str]
+    content: list[str]
 
     class Config:
         extra = "forbid"
