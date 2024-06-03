@@ -42,6 +42,7 @@ class EntryService:
             raise UsageLimitExceededError(
                 message=f"Usage limit exceeded {USAGE_LIMIT}"
             )
+        print("error")
         jsonified_conversation: dict[str, str] = await self.extract_url_content(
             url=input.url
         )
@@ -266,6 +267,7 @@ class EntryService:
             ValueError: If the expected tags are not found in the HMTL content
         """
         async with httpx.AsyncClient(follow_redirects=True) as client:
+            print("help")
             response = await client.get(url)
         response.raise_for_status()
 
