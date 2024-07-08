@@ -29,10 +29,16 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Start the server
+### Start the server (Locally)
 
 ```
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+```
+
+### Start the server (AWS Production)
+
+```
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080 --ssl-keyfile ~/stomach/privkey.pem --ssl-certfile ~/stomach/fullchain.pem
 ```
 
 ### Install turso CLI
