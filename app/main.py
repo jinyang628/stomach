@@ -13,7 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     # allow_origins=["*"],  # Allows all origins
     allow_origins=[
-        "https://fingers-beta.vercel.app",
+        "https://stillhuman.vercel.app/",
         "http://localhost:3000",  
     ],
     allow_credentials=True,
